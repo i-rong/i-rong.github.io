@@ -1,0 +1,943 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/bg/wu.png">
+  <link rel="icon" href="/img/bg/wu.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="YaoHuaiyu">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="描述用于加速分布式系统的 off-path SNIC摘要SmartNIC 最近已成为加速分布式系统的有吸引力的设备。 然而，SmartNIC 尚未得到全面的表征，并且现有设计通常仅利用单个通信路径来减轻工作负载。 本文从通信路径的角度首次对代表性的路径外 SmartNIC（特别是 Bluefield-2）进行全面研究。 我们的实验研究系统地探索了客户端、板载 SoC 和主机之间通信的关键性能特征，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Characterizing_Off-path_SmartNIC_for_Accelerating_Distributed_Systems论文翻译">
+<meta property="og:url" content="https://lumen3ever.top/2023/12/05/Characterizing-Off-path-SmartNIC-for-Accelerating-Distributed-Systems%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91/index.html">
+<meta property="og:site_name" content="YHY的博客">
+<meta property="og:description" content="描述用于加速分布式系统的 off-path SNIC摘要SmartNIC 最近已成为加速分布式系统的有吸引力的设备。 然而，SmartNIC 尚未得到全面的表征，并且现有设计通常仅利用单个通信路径来减轻工作负载。 本文从通信路径的角度首次对代表性的路径外 SmartNIC（特别是 Bluefield-2）进行全面研究。 我们的实验研究系统地探索了客户端、板载 SoC 和主机之间通信的关键性能特征，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317416.png">
+<meta property="article:published_time" content="2023-12-05T05:12:05.000Z">
+<meta property="article:modified_time" content="2023-12-13T07:08:12.187Z">
+<meta property="article:author" content="YaoHuaiyu">
+<meta property="article:tag" content="毕业设计">
+<meta property="article:tag" content="论文翻译">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317416.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Characterizing_Off-path_SmartNIC_for_Accelerating_Distributed_Systems论文翻译 - YHY的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lumen3ever.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>YHY&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Characterizing_Off-path_SmartNIC_for_Accelerating_Distributed_Systems论文翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-05 13:12" pubdate>
+          2023年12月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          182 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Characterizing_Off-path_SmartNIC_for_Accelerating_Distributed_Systems论文翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="描述用于加速分布式系统的-off-path-SNIC"><a href="#描述用于加速分布式系统的-off-path-SNIC" class="headerlink" title="描述用于加速分布式系统的 off-path SNIC"></a>描述用于加速分布式系统的 off-path SNIC</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>SmartNIC 最近已成为加速分布式系统的有吸引力的设备。 然而，SmartNIC 尚未得到全面的表征，并且现有设计通常仅利用单个通信路径来减轻工作负载。 本文从通信路径的角度首次对代表性的路径外 SmartNIC（特别是 Bluefield-2）进行全面研究。 我们的实验研究系统地探索了客户端、板载 SoC 和主机之间通信的关键性能特征，并为设计人员提供了富有洞察力的发现和建议。 此外，我们建议同时使用 SmartNIC 的多个通信路径，并提出开创性指南，为各种分布式系统提供新的优化机会。 为了证明我们方法的有效性，我们对基于 SmartNIC 的分布式文件系统 (LineFS) 和基于 RDMA 的分类键值存储 (DrTM-KV) 进行了案例研究。 我们的实验结果表明，LineFS 和 DrTM-KV 分别提高了 30% 和 25%。</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>远程直接内存访问 (RDMA) 已在现代数据中心中广泛采用，将网络带宽（推向 400 Gbps）和分布式系统性能推向新的水平。 然而，高速网络需要更多的CPU资源来使支持 RDMA 的快速NIC（RNIC）饱和，这给分布式系统带来了巨大的CPU负担。 单向 RDMA 可以通过让 RNIC 以 CPU 旁路的方式直接读写主机内存来缓解 CPU 压力。 然而，有限的卸载能力可能会导致网络放大，从而降低系统性能。<br>RDMA 以及 CPU 的基本功率和内存墙的不断改进导致了 SmartNIC（具有可编程功能的 RNIC）的出现。 这些 NIC 为系统提供了将更复杂的计算卸载到 NIC 的机会。 目前，SmartNIC 主要有两种类型。 第一个是 on-path SmartNIC，它直接向系统公开用于处理 RDMA 数据包的处理单元（NIC 核心）。 不幸的是，使用固件对低级 NIC 核心进行编程以及将卸载的程序与正常 RDMA 请求隔离，给开发人员带来了巨大的负担。 为了简化系统开发，off-path SmartNIC在 RNIC 核心旁边附加了一个可编程多核 SoC（带有 DRAM），这远离了 RDMA 的关键路径。 由于这种分离，SoC 独立于正常的 RDMA 请求，并且可以进一步部署成熟的操作系统以使开发变得更加容易。 具体来说，开发人员可以将 SoC 视为单独的服务器。 在本文中，我们重点关注 off-path SmartNIC，因为它具有通用性和可编程性。<br>关于表征 off-path SmartNIC进行了有价值的研究，重点是它们卸载计算的能力。 一个重要的发现是，旁路 SmartNIC 的计算能力弱于主机。 这意味着 off-path SmartNIC 不会提高单个网络路径（例如 NIC 和主机之间的网络路径）的速度。 例如，iPipe发现，由于支持对开发人员更友好的 RDMA，主机和 SoC 之间的路径具有相对较高的延迟。<br>尽管之前的工作在将 SmartNIC 用于分布式系统方面很有价值，但它主要集中于将计算卸载到 SmartNIC 的 SoC。 然而，令人惊讶的是，尽管 SmartNIC 对整体性能有重大影响，但其基本功能（即网络）却被忽视了。 事实上，SmartNIC 上的组网非常复杂，因为它提供了多种通信路径。 例如，SmartNIC 支持使用 RDMA 访问主机或 SoC 的内存，以及在主机和 SoC 之间交换数据。<br>为此，本文对 SmartNIC 通信路径的性能表征进行了首次系统研究。与之前简单报告基本性能数据的研究不同，我们系统地分析了 SmartNIC 架构在不同路径上的性能影响。 具体来说，我们调查一条路径为何以及何时可能比另一条路径更快，识别每条路径的瓶颈，检查 SoC 的异构性如何在与 SoC 相关的路径中带来性能异常，并最终探索路径如何相互交互。 我们结果的主要亮点是：</p>
+<ul>
+<li>_不同的路径表现出不同的性能特征。_从 NIC 到 SoC 的 RDMA 路径比到主机的路径快 1.48 倍。</li>
+<li><em>SoC 向与其相关的路径引入了新的性能异常。</em> SoC 的低级硬件细节（包括内存访问路径和 PCIe MTU）与功能更强大的主机 CPU 不同。 如果不考虑这些因素，涉及 SoC 的 RDMA 请求会遭受高达 48% 的带宽下降。</li>
+<li>_SoC 和主机之间的路径可能未充分利用 PCIe_。 从 SoC 到主机（反之亦然）的 RDMA 两次穿过 NIC 内部 PCIe。 它只能利用一半的 PCIe 带宽，并且需要处理比其他方法多 6 倍的 PCIe 数据包。 DMA 仅通过 PCIe 一次，但由于 SoC DMA 引擎较弱（与 RNIC 上的引擎相比），它并不总是比 RDMA 更快，并且还会受到数据包放大的影响。</li>
+</ul>
+<p>根据我们的性能表征，我们发现先前的方法主要针对分布式系统的特定功能优化单个路径，无法充分利用 SmartNIC。 这是因为单一路径无法利用 SmartNIC 的计算和网络功能。 此外，仅考虑单个路径可能会忽略不同路径（例如，PCIe和PCIe交换机）之间的资源干扰。 因此，LineFS 只能在 200 Gbps SmartNIC 上利用高达 117 Gbps 的带宽。 基于 SmartNIC 的分解键值存储中也存在类似的问题：虽然选择将所有键值 (KV) 存储操作卸载到 SmartNIC SoC 的路径可以消除现有基于 RDMA 的键值存储中的网络放大，但 SmartNIC SoC 的计算能力限制了其整体吞吐量。<br>根据我们研究的观察结果，我们进一步提出了优化指南，以帮助设计人员巧妙地利用 SmartNIC 的多条路径。 它不是沿着单一路径优化分布式系统，而是全面利用具有不同特征的功能的多条路径，并仔细考虑交叉路径干扰。 为了证明我们指南的有效性，我们通过优化两个最先进的系统（即 LineFS 和 DrTM-KV）进行了两个案例研究。 由于暴露了新的优化空间，遵循我们的指南可以将 LineFS 和 DrTM-KV 的性能相应提高高达 30% 和 25%。</p>
+<h3 id="贡献"><a href="#贡献" class="headerlink" title="贡献"></a>贡献</h3><p>我们的贡献总结如下：</p>
+<ul>
+<li>一个代表性的 off-path SmartNIC 的综合性能表征，特别关注各种通信路径。</li>
+<li>第一个优化指南，用于智能地利用 SmartNIC 的多路径并管理跨路径资源干扰。</li>
+<li>关于 SmartNIC 加速的分布式系统（即文件系统和键值存储）的两个案例研究具有显着的性能改进，证明了我们指南的有效性。</li>
+</ul>
+<h3 id="我们工作的假设和普遍性"><a href="#我们工作的假设和普遍性" class="headerlink" title="我们工作的假设和普遍性"></a>我们工作的假设和普遍性</h3><p>我们假设一个 off-path SmartNIC 具有以下架构：SoC 通过 PCIe 交换机与 NIC 核心连接，并且 SoC 和主机 CPU 之间存在异构性。 我们相信这是一个具有代表性的架构，就像许多较旧的架构（例如 NVIDIA Bluefield-、Broadcom Stingray）、当前的架构（例如 NVIDIA Innova2、Bluefield-2）和即将推出的 SmartNIC 一样 （例如，Bluefield-3、Marvell OCTEON 10 DPU）使用类似的设置。 我们在 Bluefield-2（采用这种架构的最先进的 SmartNIC）上进行了实验。 同时，我们还证实我们的结果对于 Bluefield-1 来说也是成立的。<br>然而，我们承认重大的架构变化（例如 on-path SmartNIC）可能会影响我们的发现。 尽管如此，我们认为我们的方法（首先研究每个通信路径的性能影响，然后巧妙地利用 SmartNIC 的多个路径）可以推广到其他 SmartNIC。 我们的基准测试代码、工具和系统可在 <a target="_blank" rel="noopener" href="https://github.com/smartnickit-project">https://github.com/smartnickit-project</a> 上找到。</p>
+<h2 id="背景和上下文"><a href="#背景和上下文" class="headerlink" title="背景和上下文"></a>背景和上下文</h2><p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317486.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="RDMA-capable-网卡-RNICs"><a href="#RDMA-capable-网卡-RNICs" class="headerlink" title="RDMA-capable 网卡 (RNICs)"></a>RDMA-capable 网卡 (RNICs)</h3><p>RDMA (远程直接内存访问) 是现代数据中心广泛采用的低延迟 (2us) 和高带宽 (200Gbps) 网络。利用 RDMA 的一种直观方法是使用其双向原语 (SEND&#x2F;RECV) 加速消息传递，例如基于 RDMA 的RPC。或者，单向原语 (READ&#x2F;WRITE) 允许 RNIC 绕过主机 CPU 访问主机内存。具体来说， NIC 内核内部使用 PCIe 链路的直接内存访问 (DMA) 特征来访问主机内存。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051318332.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>尽管 RDMA 提高了许多分布式系统的性能，通常是数量级的提升，它仍然存在以下两个问题，尤其是当 RNIC 扩展到更高的性能时。</p>
+<h4 id="问题1-主机-CPU-占用"><a href="#问题1-主机-CPU-占用" class="headerlink" title="问题1 主机 CPU 占用"></a>问题1 主机 CPU 占用</h4><p>对于双向原语，分布式系统需要非平凡的 CPU 来饱和强大的 NIC。我们的测量表明，24 核服务器只能在 200 Gbps RNIC (ConnectX-6) 上每秒饱和 8700 万个数据包，而 NIC 内核可以处理超过 195 个 Mpps。最近的一项工作进一步表明，当网络带宽从 25 Gbps 扩展到 100 Gbps 时，分布式文件系统需要 2.27 倍的 CPU 核来处理网络数据包。尽管部署更多强力的 CPU 可以减轻这个问题，RNIC 的带宽也在快速地增长，目前已经达到了 400 Gbps。</p>
+<h4 id="问题2-网络放大"><a href="#问题2-网络放大" class="headerlink" title="问题2 网络放大"></a>问题2 网络放大</h4><p>使用单向 RDMA 原语通过允许系统将内存访问卸载到 RNIC 来减轻主机 CPU 的压力。然而，有限的卸载能力约束了系统的性能，因为单个请求可能涉及多次往返 READs&#x2F;WRITE 来完成 (通常称为网络放大)。图2(a) 举例说明了在具有单向 RDMA READ 段分布式内存键值存储上执行 get request。客户端首先使用一个(或多个) READs 来查询给定键的索引。根据先前 READs 返回的索引，发出额外的 READ 来检索值。</p>
+<h3 id="从-RNICs-到-SmartNICs"><a href="#从-RNICs-到-SmartNICs" class="headerlink" title="从 RNICs 到 SmartNICs"></a>从 RNICs 到 SmartNICs</h3><p>为了解决 RNIC 的局限性，SmartNIC 将板载内存(4-64GB)与各种计算单元(例如 SoC)添加到 NIC。通过将它们暴露给开发人员，SmartNIC 能够将定制的计算卸载到它自己身上。具体来说，SmartNIC 可以分为以下几类。</p>
+<h4 id="On-path-SmartNIC"><a href="#On-path-SmartNIC" class="headerlink" title="On-path SmartNIC"></a>On-path SmartNIC</h4><p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317420.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>如图1(b)所示，on-path SmartNIC 将 NIC 内核暴露给具有低级可编程接口的系统，允许它们直接操作原始数据包。顾名思义，卸载的代码就<strong>位于</strong>网络处理管道的关键路径上。示例 NIC 包括 Marvell LiquidIO 和 Netronome Agilio。这样做的好处是卸载的代码更接近网络数据包。因此，仅与 NIC 交互的内联请求，例如写入板载内存是非常有效的。<br>然而，on-path SmartNIC 有两个局限。第一，卸载的代码与发送到主机的网络请求竞争 NIC 内核。如果将套多的计算卸载到它身上，那么发送到主机的正常网络请求就会遭受显著的退化。第二，由于 on-path SmartNIC 的低级接口，在它上面编程是比较困难的。</p>
+<h4 id="Off-path-SmartNIC"><a href="#Off-path-SmartNIC" class="headerlink" title="Off-path SmartNIC"></a>Off-path SmartNIC</h4><p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317416.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>如图1(c) 所示，Off-path SmartNIC 提供了一种备选方案：它在 NIC 核心旁边的单独 SoC 中打包额外的计算内核和内存。这样一来，卸载的代码就脱离了网络处理管道的关键路径。从 NIC 的角度来看，SoC 可以被视为具有独占网络接口的第二个成熟的主机。为了将 NIC 核心、SoC 和主机连接在一起，SmartNIC 内部集成了 PCIe 交换机，用以正确地调度网络数据包。示例 NIC 包括 NVIDIA Bluefield 和 Broadcom Stingray。<br>和 on-path 的做法相比，卸载的代码不影响主机的网络性能，只要不涉及网络通信。多亏了这种清晰的分离，SoC 可以使用全网络堆栈 (即 RDMA) 运行成熟的内核 (例如 Linux)。简化系统开发和允许卸载复杂任务。然而，使用 off-path SmartNIC 加速分布式系统通常比使用 on-path 的方法更具挑战性。这是因为 PCIe 交换机延长了所有的通信路径，这导致了潜在的性能下降。</p>
+<h3 id="Target-SmartNIC-NVIDIA-Bluefield-2"><a href="#Target-SmartNIC-NVIDIA-Bluefield-2" class="headerlink" title="Target SmartNIC: NVIDIA Bluefield-2"></a>Target SmartNIC: NVIDIA Bluefield-2</h3><p>我们对 Bluefield-2 进行了研究，一个典型的 off-path SmartNIC，用于卸载通用计算。图1(c)说明了它的整体硬件架构，详细的硬件配置如表1所示。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317432.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317465.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h4><p>Bluefield-2 装配了成熟的 RNIC (ConnectX6) 作为其用于高速网络的 NIC 内核。这些内核支持所有 RDMA 操作。其可编程性来自于一块集成的板载 SoC，该 SoC 具有16GB DRAM 和 ARM Cortex-A72(8核，2.75 GHz)。PCIe 4.0 交换机将 NIC 核心、SoC和主机连接在一起，使得双向数据传输带宽高达256 Gbps。请注意，SoC 通过内部链接链接到 PCIe 交换机，而不是通过 PCIe。具体来说，Bluefield 提供的硬件计数器也意味着它只有两个 PCIe 链接：一个将 RNIC 与交换机链接 (PCIe1)，另一个将交换机与主机链接 (PCIe0)。</p>
+<h4 id="软件"><a href="#软件" class="headerlink" title="软件"></a>软件</h4><p>SoC 运行成熟的Linux，允许开发人员将其视为正常的ARM服务器。内核还托管一个完整的 RDMA 堆栈，便于启用基于 RDMA 的通信。此外，Bluefield 为高级使用提供 DOCA SDK，例如 DMA。</p>
+<h4 id="通信原语-RDMA和DMA"><a href="#通信原语-RDMA和DMA" class="headerlink" title="通信原语:RDMA和DMA"></a>通信原语:RDMA和DMA</h4><p>使用 RDMA 进行与 SoC 相关的所有通信路径以简化系统开发。如图 1(c)所示，客户端可以向 SoC 发出单向或双向 RDMA 请求，类似于主机上的孪生服务器。与此同时，SoC 同样可以通过 RDMA 和主机交互，反之亦然。然而，在 SoC 和主机之间交换数据必须通过 RNIC (PCIe1和NIC核心) 进行 RDMA 支持，它为这条路径添加了一个隐藏的瓶颈。幸运的是，我们发现 Bluefield 进一步提供了带有 DOCA 的 DMA 支持，允许 SoC 使用 DMA 访问主机内存(反之亦然)，绕过 RNIC。</p>
+<h4 id="探索-Bluefield-的现有状态"><a href="#探索-Bluefield-的现有状态" class="headerlink" title="探索 Bluefield 的现有状态"></a>探索 Bluefield 的现有状态</h4><p>以前的研究主要集中在 Bluefield 的计算能力和在执行卸载任务和发送网络请求方面揭示 SoC 核心的相对弱点。这是因为核心的频率和数量不如主机 CPU。由于 SmartNIC 的功率限制，NIC 和主机 CPU 之间的相对性能比较不太可能发生变化。因此，我们在调查期间将其作为前提。<br>相比之下，很少有研究考虑 Bluefield 中的各种通信模式，这是我们工作的主要焦点。Thostrup 等人发现，使用 READ 访问 <strong>SoC 内存</strong>比以相同的方式访问<strong>内存</strong>更快。iPipe 表明，由于支持 RDMA 的软件开销，使用 RDMA 在主机和 SoC 之间通信具有很高的延迟。本文系统地探讨了 Bluefield 的性能特征，总结了蔚来系统开发人员的深刻教训和建议。</p>
+<h3 id="符号和测试平台"><a href="#符号和测试平台" class="headerlink" title="符号和测试平台"></a>符号和测试平台</h3><h4 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h4><p>本文在描述与Bluefield-2相关的底层硬件细节时遵循 Bluefield 的硬件规范。如图1(c)所示，“PCIe1”是指连接 NIC 核心到 PCIe 交换机的 PCIe 链路，“PCIe0”是指连接交换机和主机 PCIe 控制器的链接。ARM 核心以及 Bluefield-2 的片上存储器统称为“SoC”。托管 Bluefield-2 的机器称为“主机”。此外，我们使用术语“请求者”和“响应者”来指代分别发出 RDMA 请求和目标硬件组件的机器。例如，在图 1(c) 中，路径 ① 和 ② 的请求者是任何支持 RDMA 的机器(也称为客户端)，响应者分别是主机和 SoC。对于路径 ③，请求者和响应者分别是主机和 SoC，反之亦然。</p>
+<h4 id="测试平台"><a href="#测试平台" class="headerlink" title="测试平台"></a>测试平台</h4><p>表 2 显示了我们测试平台中的机器配置。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317121.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>为了最好地利用 SmartNIC，我们默认在服务器 (SRV) 上部署 Bluefield-2，并匹配 PCIe 链路 (PCIe4.0)。这些机器可以将 Bluefield-2 替换为 200 Gbps ConnectX-6 (RNIC) 进行比较。其他机器 (CLI) 作为向服务器发出 RDMA 请求的客户端。SRV 和 CLIM 中的所有机器都通过 Mellanox SB7890 100 Gbps InfiniBand Switch 连接。请注意，评估的 200 Gbps NIC 的网络性能不受限制，因为它们连接到具有两个 100 Gbps 端口的交换机。</p>
+<h2 id="描述-SmartNIC-的性能"><a href="#描述-SmartNIC-的性能" class="headerlink" title="描述 SmartNIC 的性能"></a>描述 SmartNIC 的性能</h2><p>如第 2.3 节所述，众所周知，NIC 的计算能力比主机 CPU 的计算能力更弱。因此，我们专注于分析 SmartNIC 的通信效率。图 3 显示了通过不同通信路径使用 RNIC 或 SmartRNIC 发送不同RDMA请求的端到端延迟和峰值吞吐量(例如，READ，WRITE，SEND&#x2F;RECV)。<br><strong>评估设置</strong><br>我们使用最先进的 RDMA 通信框架对表 2 中描述的集群进行了实验。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317890.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>对于单向操作 (READ&#x2F;WRITE)，请求者使用 RDMA 的可靠连接 (RC) 队列对 (QPs) 与一个响应器通信。响应器地址默认从 10 GB 地址空间中随机选取。对于双向操作 (SEND&#x2F;RECV)，响应器实现了一个回声服务器，它利用所有可用的核心来处理消息，请求者通过不可靠的数据报 (UD) QPs 与它通信以获得更好的性能。对于端到端延迟，我们部署了一个请求者机器来防止排队效应的干扰。对于峰值吞吐量，我们使用多达 11 个请求者机器来饱和响应器。最后，我们启用了所有众所周知的优化，包括地址对齐，无信号请求和巨大的页面，以防止误用 RDMA 的副作用。</p>
+<h3 id="从客户端到主机的通信-路径-①"><a href="#从客户端到主机的通信-路径-①" class="headerlink" title="从客户端到主机的通信 (路径 ①)"></a>从客户端到主机的通信 (路径 ①)</h3><h4 id="延迟"><a href="#延迟" class="headerlink" title="延迟"></a>延迟</h4><p>为了将通信与主机进行比较，我们对 Bluefield-2 (SNIC) 和 ConnectX-6 (RNIC)进行了比较，因为它们共享相同的 NIC 核心。它们的性能差距最好地说明了 SmartNIC 架构支付的“性能税”。如图 3 所示，SNIC ① 相较于 RNIC 在READ，WRITE，SEND&#x2F;RECV上分别有 15%-30%，15%-21% 和 6%-9% 的更高的延迟，在 SNIC 上增加的延迟主要来自于 PCIe 交换机以及主机和 NIC 内核之间的的 PCIe1。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317981.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>单向PCIe延迟约为300 ns，这对于小型 RDMA 请求来说并非易事(1-2 μs)。请注意，结果是间接测量的。具体来说，SNIC 和 RNIC 上的端到端读取延迟分别为 2.6 μs 和 2.0 μs。与 RNIC 相比，SNIC 上的 READ 通过两次 PCIe 交换机(见图 4)。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317752.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>因此，每次传递的成本约为 300 ns，这与最近文献中报道的数字相匹配。此外，WRITE 在 SNIC 上的延迟增加低于 READ，因为它的完成省略了一次通过 PCIe 交换机。SEND&#x2F;RECV 在 SNIC 上的延迟也会增加，但主要是由于响应者的 CPU 成本更大；SNIC 上发布请求（通过 MMIO）的延迟高于 RNIC（399 个循环与 279 个循环）。</p>
+<h4 id="吞吐量"><a href="#吞吐量" class="headerlink" title="吞吐量"></a>吞吐量</h4><p>如图 3 所示，对于 READ，WRITE 以及 SEND&#x2F;RECV，对于小于 512 字节的有效负载，SNIC ① 的吞吐量分别比 RNIC ① 低 19-26%、15-22% 和 3-36%。我们怀疑较低的吞吐量是由于处理由 PCIe 交换机引起的 RDMA 请求的延迟更长。然而，对于较大的请求，结果与使用 RNIC 相似，因为两者都受到网络带宽的瓶颈。</p>
+<h4 id="瓶颈"><a href="#瓶颈" class="headerlink" title="瓶颈"></a>瓶颈</h4><p>NIC、PCIe1 和 PCIe0 的最低带宽限制首先将成为从客户端到主机通信的瓶颈。在我们的测试平台上，瓶颈是网络：200 Gbps。在另一方面，我们发现了一个有趣的现象：请求者的总入站带宽可以达到限制的两倍——400 Gps——因为链接是双向的。具体来说，如果数据包以相反的方向流动，例如，图 5(a) 中的 READ 和 WRITE 数据包，它们可以在同一链路上多路复用。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317405.png" srcset="/img/loading.gif" lazyload alt="image.png">为了说明这一点，我们使用两个请求者（每个都有 12 个线程来饱和单向带宽）来发出 4 KB 数据包。如图5(b) 所示，如果两个客户端分别发送 READ 和 WRITE 请求，在 200 Gbps 网卡上测量了总共 364 Gbps 的带宽(参见 SNIC ① 的 READ + WRITE)。相比之下，如果两个客户端发送相同类型的请求（要么发送 READ 要么发送 WRITE），只能测量到约 190 Gbps。请注意，尽管这种现象在传统的网络（即消息）中广为人知，其中消息通常是双向的，但许多基于 RDMA 的系统在很大程度上忽略了它，因为 RDMA 请求可以是单向的。</p>
+<h4 id="附"><a href="#附" class="headerlink" title="附"></a>附</h4><p>作为“智能”会导致与主机通信以进行小请求的性能下降。对于小请求，我们证明了将 RNIC(ConnectX-6) 拓展至 SNIC(Bluefield-2) 会导致吞吐量和延迟的性能下降高达 36% 和 30%。一般来说，对于仅使用路径 ① 的分布式系统，建议使用 RNIC。尽管大型请求或延迟较长的网络的开销可能可以忽略不计，RNIC 也比 SNIC 更加便宜且能效更高。</p>
+<h3 id="从客户端到-SoC-的通信-路径-②"><a href="#从客户端到-SoC-的通信-路径-②" class="headerlink" title="从客户端到 SoC 的通信 (路径 ②)"></a>从客户端到 SoC 的通信 (路径 ②)</h3><h4 id="延迟-1"><a href="#延迟-1" class="headerlink" title="延迟"></a>延迟</h4><p>对于将请求从客户端发送到 SoC (图 3 中的 SNIC ②)，与发送到主机 (SNIC ①) 相比，READ的延迟减少了高达14%。原因是它跳过了 PCIe0。然而，它仍然比 RNIC 高 4-15%，因为请求仍然需要在 PCIe1 上通过 PCIe 交换机。对于 WRITE，由于内核的异步完成(见图 4)，SNIC ② 提供了与 SNIC ① 相似的性能。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051319504.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>对于 SEND&#x2F;RECV，由于 SoC 的计算能力较弱，SNIC ② 的延迟比 SNIC ① 高 21-30%。</p>
+<h4 id="吞吐量-1"><a href="#吞吐量-1" class="headerlink" title="吞吐量"></a>吞吐量</h4><p>SNIC ② 相比于 SNIC ① 有更好的吞吐量，对于小于 512 字节的有效负载，达到了 1.08-1.48 倍。有趣的是，在到达峰值网络带宽之前，SNIC ② 的 READ 甚至高于 RNIC ①。对于这个未文件记载的结果，我们怀疑这是由于 SoC 内存和 PCIe 交换机封装更接近。具体来说，SoC 通过内部链接链接到 PCIe 交换机，而不是通过 PCIe。请注意，自信的分析依赖于 Bluefield 的硬件细节，不幸的是现在已经不可用了。对于 WRITE，SNIC ② 仍然低于 RNIC ①。我们的假设是双重的。首先，与主机相比，SoC 的 DRAM 通道更少(1 vs. 4)，限制了写访问的并发性。然而，READ 不受影响，因为对 DRAM 的读取访问比写入访问更快。其次，SoC 只能利用一部分 NIC 内核(见第 4.1 节)。最后，SEND&#x2F;RECV 在 ② 上表现很差：它只实现了 64% 的主机性能(SNIC ①)。这是因为 SoC 的垃圾的计算能力，因为 SEND&#x2F;RECV 的吞吐量受到响应器 CPU 的瓶颈以发送回复。</p>
+<h4 id="瓶颈-1"><a href="#瓶颈-1" class="headerlink" title="瓶颈"></a>瓶颈</h4><p>如图 1(c)所示，因为 SNIC ② 只通过 NIC 和 PCIe1 流动，瓶颈是其较低的带宽限制，这仍然是 Bluefield-2 的 200 Gbps NIC。因此，如图 5(b)所示，SNIC ② 的性能与 SNIC ① 相同，即相反方向和相同方向通信的总 400 Gbps 和 200 Gbps 带宽。<br>除了 SNIC 的基本 RDMA 性能外，我们还发现了几个因素，这些因素也可能阻止分布式系统实现上述性能。</p>
+<h4 id="建议-1：避免倾斜的内存访问"><a href="#建议-1：避免倾斜的内存访问" class="headerlink" title="建议 #1：避免倾斜的内存访问"></a>建议 #1：避免倾斜的内存访问</h4><p>垃圾的 SoC 内核可能影响单向 RDMA 原语的内存访问表现，因为它通常比更强大的主机 CPU 内核支持更少的功能。具体来说，数据的直接 I&#x2F;O (DDIO) 由主机 CPU 广泛支持，这允许 NIC 直接 从&#x2F;向 其最后一层缓存 (LLC) 读取&#x2F;写入数据，如图 6 所示。<img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317317.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>SoC 内核还可以配备类似的功能（例如，ARM CCI），但是否这样做是特定于供应商的。我们的硬件 SoC 核心(Bluefield-2 中的 ARM Cortex-A72)不支持 DDIO。我们发现没有 DDIO 的单向 RDMA 容易受到倾斜内存访问的影响——请求的内存地址落在一个小范围内。这是因为 DRAM 需要一个（不是太小的范围）来同时利用所有内存模块。LLC 比 DRAM 快，因此我们怀疑它可以更好地容忍偏斜的访问。<br>图 7 显示了随着地址范围的增加，通过 SNIC 访问主机内存和 SoC 内存的峰值吞吐量。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317190.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>对于 WRITE，当地址范围减小到 1.5 KB（来自 48 KB）时，使用 SoC 的 SNIC ② 的吞吐量下降到 22.7 M reqs&#x2F;s（从 77.9 M reqs&#x2F;s）。相比之下，当启用 DDIO 时，使用主机 CPU 的 SNIC ① 的性能几乎没有受到影响。对于 READ，性能退化相对较小。当范围从 48 KB 降低到 1.5 KB 时，SNIC ② 的吞吐量从 85 M reqs&#x2F;s 下降到 50 M reqs&#x2F;s。这是因为 DRAM 可以比写入更快地服务于读取。最后，我们还将 RNIC 结果绘制为参考。在倾斜的工作负载下，我们可以看到，当禁用 DDIO 时，① 在 WRITE 上也有显著的性能下降。</p>
+<h4 id="建议-2：避免大的-READ-请求"><a href="#建议-2：避免大的-READ-请求" class="headerlink" title="建议 #2：避免大的 READ 请求"></a>建议 #2：避免大的 READ 请求</h4><p>通常使用具有大有效载荷的请求来充分利用网络带宽是很常见的。例如，使用有效载荷大于 16 KB 的请求足以饱和 200 Gbps RNIC，即使只使用一些线程。不幸的是，我们观察到 SNIC ② 的 READ 性能随着请求有效负载大于 9 MB 而崩溃，如图 8(a) 所示。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051320277.png" srcset="/img/loading.gif" lazyload alt="image.png">我们怀疑在处理大型 READ 请求时，NIC 内核会受到 head-of-line 阻塞的影响。对于 READ 请求，NIC 发出一个 PCIe 读取事务以获取数据，然后将其进一步分割成多个 PCIe 数据包。PCIe 数据包的最大大小由 PCIe 最大传输单元(MTU)决定，该单元由引导过程中连接的硬件设备协商。表 4 列出了我们测试平台上的 PCIe MTU。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317317.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>SoC 内核（SNIC ② 的终点）由于其较弱的 CPU，使用更小的 PCIe MTU (128 B)。因此，处理发送到 SoC 内存的大型 DMA 读取的 NIC 核心 (SNIC ②) 必须等待更多的 PCIe 数据包到达，从而导致冗长的处理停顿。由于整体 NIC 包处理能力不是瓶颈：如图 8(b) 所示，有效载荷小于 9 MB 的请求仍然可以实现高处理速度，而对于大于 9 MB 的请求崩溃，因此我们怀疑一些阻塞发生在 NIC 核心。请注意，WRITE 请求不受影响，因为 DMA 不等待完成。<br>相反，主机使用更大的 PCIe MTU (512 B)，因此它不会受到带宽退化的影响(SNIC ①)。如图 8(b) 所示，NIC 每秒可以向主机发出 46.7 万个 PCIe 数据包（SNIC ①）。聚合带宽达到 191 Gbps，其瓶颈是网络。</p>
+<h4 id="附-1"><a href="#附-1" class="headerlink" title="附"></a>附</h4><p>对于 READ 和 WRITE，将请求发送到 SoC 通常比发送到主机更快(或者甚至比通过 RNIC 更快)因为SoC“更接近”NIC(在没有 PCIe0的时候)。相比之下，由于 SoC 核心较弱，使用 SEND&#x2F;RECV 与 SoC 通信速度较慢。此外，设计人员仍然需要仔细考虑主机 CPU 内核和 SoC 内核之间的异质性，以避免性能异常。具体来说，由于缺乏 SoC 核心中的 DDIO 支持，倾斜的内存访问可能会降低性能。此外，向 SoC 发送大型 READ 请求可能无法利用带宽，因此应主动将请求分割成更小的请求。</p>
+<h3 id="SoC-与主机之间的通信-路径-③"><a href="#SoC-与主机之间的通信-路径-③" class="headerlink" title="SoC 与主机之间的通信(路径 ③)"></a>SoC 与主机之间的通信(路径 ③)</h3><p>我们首先描述了我们对 RDMA 的测量和发现，然后将 RDMA (③) 与 DMA (③*) 进行比较。</p>
+<h4 id="延迟-2"><a href="#延迟-2" class="headerlink" title="延迟"></a>延迟</h4><p>如图 3 所示，将请求从 SoC 发送到主机 (SNIC ③ S2H) 的延迟非常高，特别是对于 READ，因为请求者 (SoC) 需要更长的时间来向 NIC 发出 RDMA 请求。相反的方向（从主机到 SoC、SNIC ③ H2S）的延迟降低，但仍比 SNIC ② 高 4-17%。虽然机器内通信节省了一个网络往返，但它增加了额外的 PCIe 传输。具体来说，SNIC ② 发出的请求的流向是：请求者端的 PCIe(没在图 1(c)中展示)-&gt;网络-&gt;PCIe1-&gt;PCIe 交换机，而 SNIC ③(H2S)发出的请求的流向是PCIe0-&gt;PCIe 交换机-&gt;PCIe1 两次(进入一次，出去一次)-&gt;PCIe交换机(再次)。</p>
+<h4 id="吞吐量-2"><a href="#吞吐量-2" class="headerlink" title="吞吐量"></a>吞吐量</h4><p>对于有效载荷小于 512 字节的请求，SNIC ③（S2H 和 H2S）的吞吐量主要由请求者发布网络请求的能力决定。这是因为单个请求者机器（SoC 或主机）无法用小请求饱和 NIC，SNIC ③ 的 READ 吞吐量仅达到 29 M reqs&#x2F;s 和 51.2 M reqs&#x2F;s（分别对 S2H 和 H2S），仍然离它的限制很远。对于 WRITE 和 SEND&#x2F;RECV，结果相似。对于更大的请求，它们受到 PCIe 带宽的瓶颈，这将在下一节中更详细地讨论。</p>
+<h4 id="瓶颈-2"><a href="#瓶颈-2" class="headerlink" title="瓶颈"></a>瓶颈</h4><p>如图 5(b) 所示，对于以单一方向流动的数据包，主机与 SoC 之间的通信受到 PCIe 带宽的瓶颈(256 Gbps)而不是未涉及的 NIC(200 Gbps)。因此，SNIC ③ 的峰值带宽略高于 SNIC ① 和 ②(204 Gbps vs. 191 Gbps)。读者可能对为什么 SNIC ③ 的结果不能接近 256 Gbps 感兴趣。我们怀疑它需要比其他数据包多得多的 PCIe 数据包。对于以相反方向流动的数据包，SNIC ③ 不能像其他的路径那样利用两次限制(即 SNIC ① 和 ②)。这是因为 RDMA 过度使用 PCIe：每个请求两次通过 PCIe1 (进入一次，出去一次)，耗尽了双向链路。</p>
+<h4 id="建议-3：避免大型-READ-WRTIE-请求"><a href="#建议-3：避免大型-READ-WRTIE-请求" class="headerlink" title="建议 #3：避免大型 READ&#x2F;WRTIE 请求"></a>建议 #3：避免大型 READ&#x2F;WRTIE 请求</h4><p>主机和 SoC之间(SNIC ③)的通信也会受到如 SNIC ② 的大型 READ 请求的带宽退化影响，可能是由于我们之前讨论过的 head of line 阻塞。此外，这个问题出现在大型 WRITE 请求中，因为 SmartNIC 必须首先从请求者读取数据，然后将其写入响应器。如图 9(a)，SNIC ③ 的 READ&#x2F;WRITE 性能对于较大的请求崩溃到大约 100 Gbps。表 4 显示了通过不同通信路径传输 N 个字节所需的 PCIe 数据包的数量。对于 SNIC ③，由于通过 PCIe1 两次，NIC 生成更多的数据包。此外，S2H 的性能比 H2S 更早崩溃，因为它将首先通过 PCIe1。假设我们将数据以 200 Gbps 从 SoC 传输到主机。SoC 核心首先每秒传输195 M 个 PCIe 数据包到 NIC(PCIe1)，然后 NIC 再次通过 PCIe1 将数据以 49 Mpps 转发到 PCIe 交换机(主机支持 512 B MTU)，最终，交换机通过 PCIe0 转发49 Mpps 的数据。因此，SmartNIC 应该至少以 200 Gbps 的带宽处理 293 Mpps 的数据，这是 SNIC ① 的3倍，是 SNIC ② 的 2 倍。我们的硬件计数器测量进一步证实了这一点。如图 9(b) 所示，为了将 256 KB READ 请求从 SoC 发送到主机，带宽达到 204 Gbps，NIC 每秒传输大约 320 M PCIe 数据包。</p>
+<h4 id="建议-4：小心地启用门铃批处理"><a href="#建议-4：小心地启用门铃批处理" class="headerlink" title="建议 #4：小心地启用门铃批处理"></a>建议 #4：小心地启用门铃批处理</h4><p>将每个请求发布到 NIC 的时间主要由 MemoryMapped IO(MMIO) 决定。在与主机通信时，SoC 遭受高 MMIO 延迟(见图 10(a))。已知的优化是门铃批处理 (DB)：要发送一批 B 个请求，请求者首先在内存中将它们链接在一起，然后使用一个 MMIO 要求 NIC 以 CPU 旁路方式使用 DMA 读取这些请求。DB 将需要 MMIO 的次数从 B 减少到了 1。因此，对于 RNIC ① 和 SNIC ②，DB 总是有帮助的，可以带来 2-30% 的性能提升(见图 10(b))。对于主机与 SoC 之间的通信(SNIC ③)，DB 仍然有助于 SoC 端。如图 10(b) 所示，当向主机发送一批 READ 时，DB 在批量大小为 16-80 的情况下将 SoC 性能提高了 2.7-4.6 倍。巨大的改进部分是由于 DMA 的 CPU 旁路特性，而且因为 NIC 在使用 DMA 读取存储在 SoC 内存上的请求时更快(见 3.2节)。然而，DB并不总是有助于主机端，因为它在通过 NIC DMA 读取主机内存的时候更慢了(见 3.1 节) 。对于 16、32、48 的批量大小，DB 将从 主机到 SoC 的通信的吞吐量分别降低了 9%、7% 和 6%。</p>
+<h4 id="RDMA-③-vs-DMA-③"><a href="#RDMA-③-vs-DMA-③" class="headerlink" title="RDMA(③) vs. DMA(③*)"></a>RDMA(③) vs. DMA(③*)</h4><p>除了 RDMA 之外，SoC 还可以通过 SoC 内部的 DMA 引擎使用 DMA (➂*) 从主机读取&#x2F;写入数据（反之亦然）。与 RDMA 相比，它具有减少两次 PCIe 通道 (PCIe1) 和绕过 RNIC 的优点（见图 1），从而降低延迟，例如，64 B SoC 到主机 READ 的延迟为 1.9 μ 与 2.6 μ。然而，我们发现 SoC DMA 引擎的处理能力比 RNIC(RDMA) 弱。为简洁起见，我们只展示了SoC到主机的结果。主机到 SoC 的结果与 SoC 到主机的结果相同，因为主机 DMA 已卸载到 SoC 执行。如图 11 所示，对于 WRITE ，对于有效载荷小于 4 KB 的请求，DMA 的峰值吞吐量仅为 RDMA 的47-59%。READ 的结果相似。DMA WRITE 甚至无法在 16 KB 和 1 MB 之间饱和有效载荷的 PCIe 限制 (256 Gbps)。我们怀疑这是由于 SoC 的 DMA 引擎的处理能力较差，但我们无法在不了解 SoC 的机密内部设计的情况下确认这一点。带宽结果的另一个观察结果是 DMA 也存在 RDMA 的异常(见 建议 #3)：对于大于 1 MB 的有效负载，READ 和 WRITE 的性能都显着下降。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317513.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>对于带宽，③* 相较于 ③ 有着更高的理论上限：它受到 PCIe 的双向带宽的瓶颈，因为它绕过了 PCIe1。但是，图 5 显示它无法做到这一点(READ + WRITE 只有178Gbps)。这表明缓慢的 DMA 引擎首先将成为瓶颈。然而，绕过 PCIe1 仍然具有减少对其他路径干扰的好处。我们将在第 4 节中详细讨论它们。</p>
+<h4 id="附-2"><a href="#附-2" class="headerlink" title="附"></a>附</h4><p>首先，启用门铃批处理对于 SoC 端的 SNIC ➂ 至关重要，因为 SoC 的计算能力较弱。然而，对于小批量，它在主机端受到负面影响。其次，SNIC ➂ 具有与 SNIC ➀ 和 SNIC ➁ 不同的瓶颈。它总是受到 PCIe 单向带宽的瓶颈，而其他则受到网络和 PCIe 最小双向带宽的限制。如果这个因素没有被充分考虑，分布式系统将没有充分利用 NIC 带宽（见第 5.1 节）。第三，尽管 DMA 比 RDMA 更好地利用 PCIe 进行 SoC 与主机通信，但由于 SoC 上的 DMA 引擎较弱，吞吐量较低。最后，我们应该避免在主机和 SoC 之间传输大型请求，对于 RDMA 和 DMA 以及 READ 和 WRITE。</p>
+<h2 id="一种智能地利用-SmartNIC-多条路径的指导方针"><a href="#一种智能地利用-SmartNIC-多条路径的指导方针" class="headerlink" title="一种智能地利用 SmartNIC 多条路径的指导方针"></a>一种智能地利用 SmartNIC 多条路径的指导方针</h2><p>以前的方法主要利用 SmartNIC 的单一路径来优化分布式系统的特定功能。 然而，这并不能充分利用SmartNIC的计算和网络能力。 此外，仅考虑单个路径可能会忽略不同路径之间的资源（例如，PCIe 和 PCIe 交换机）的干扰。 因此，我们首先全面研究同时使用多路径的性能特征，然后为设计人员巧妙地使用 SmartNIC 制定优化指南。</p>
+<h3 id="描述并发通信路径"><a href="#描述并发通信路径" class="headerlink" title="描述并发通信路径"></a>描述并发通信路径</h3><h4 id="与主机和-SoC-的并发通信-①-②"><a href="#与主机和-SoC-的并发通信-①-②" class="headerlink" title="与主机和 SoC 的并发通信(① + ②)"></a>与主机和 SoC 的并发通信(① + ②)</h4><p>我们专注于吞吐量结果(参见图 3 的下半部分)因为延迟结果大致是两条路径的平均值。我们通过分配一半的客户端向主机发送请求，而其他客户端发送到 SoC 来评估峰值吞吐量。我们可以看到，同时使用 ➀ 和 ➁ (SNIC ➀+➁) 的总峰值吞吐量通常比它们各自更快。对于 READ、WRITE 和 SEND&#x2F;RECV，SNIC ➀+➁ 的性能分别比其中较低者高出 1.45×、1.50× 和 3.3×。<br>对于 SEND&#x2F;RECV，并发路径利用主机和 SoC 来处理请求，因此性能改进很明显。然而，READ&#x2F;WRITE 性能改进是不直观且无证的，因为两条路径会竞争 NIC 内核。我们的怀疑是 SmartNIC 在内部为每个端点保留一些 NIC 内核。因此，同时向主机发送请求和 SoC 可以通过启用更多的 NIC 内核来进一步提高峰值吞吐量。为了量化这一点，我们设计了一个微基准，它首先增加请求者机器饱和 NIC，然后更改响应器，如图12所示。<img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317037.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>所有请求都使用 0 B 有效负载来避免 DMA 的干扰，即在通过 PCIe1 之前请求将返回。对于 READ，单独使用 SNIC ➀ 或 SNIC ➁ 时，五个请求者计算机足以使 NIC 核心饱和。因此，为了同时使用 SNIC ➀ 和 SNIC ➁，我们首先为一个响应者专用 5 台请求者机器，然后为另一个响应者添加请求者。两种情况（SNIC ➀+➁ 和 SNIC ➁+➀）提供相似的性能，与单独使用 SNIC ➀ 或 SNIC ➁ 相比，吞吐量分别提高 4–13% 和 5–10%。对于 WRTIE，所有结果都几乎相同。<br>最后，正如预期的那样，两条路径（SNIC ➀ 和 SNIC ➁）的聚合吞吐量远高于同时使用它们的吞吐量（352 Mpps vs. 195 Mpps），这表明大多数 NIC 核心仍然是共享的，即每一个 NIC 核心都可以与两个端点通信，只有少数是专用的。这也意味着同时使用 SmartNIC 的多个资源并非易事。</p>
+<h4 id="并行机器间和机器内通信-➀-➁-➂"><a href="#并行机器间和机器内通信-➀-➁-➂" class="headerlink" title="并行机器间和机器内通信 (➀&#x2F;➁+➂)"></a>并行机器间和机器内通信 (➀&#x2F;➁+➂)</h4><p>机器间和机器内通信存在四种并发组合。为了简洁起见，我们重点关注 SNIC ➀+➂&#x2F;H2S 的结果，其他组合类似。为了研究两条路径的并发使用，我们首先部署足够的客户端（五台请求者机器）以使 SNIC ➀ 的网络饱和。然后，我们在主机（一台有 24 个线程的机器）上启动请求程序，将 RDMA 请求发送到 SoC (SNIC ➂&#x2F;H2S)。我们的测量表明，同时启用机器内通信会降低机器间通信的性能。如图 3 所示，通过比较 SNIC ➀ 和 SNIC➀ + ➂(H2S) ，对于 READ、WRITE 和 SEND&#x2F;RECV，小请求（小于 512 字节）的吞吐量下降了 7–15%、4–27% 和 9–14%。对于大请求，性能总是受到网络带宽的瓶颈，因此退化可以忽略不计。<br>SNIC ➂ 影响 SmartNIC 的其他通信路径，因为它依赖 NIC（PCIe1 和 PCIe 交换机）来支持 RDMA。相比之下，SNIC ➂* 通信可以利用 DMA 来减少此类干扰。例如，对于有效负载为 16-64 B 的 READ，在将 SNIC ➂* 添加到 ➀ 后，我们仅观察到吞吐量下降了 5-6%。</p>
+<h4 id="瓶颈-3"><a href="#瓶颈-3" class="headerlink" title="瓶颈"></a>瓶颈</h4><p>假设每条路径只有一种类型的请求，例如 READ 或 WRITE。对于 SNIC ➀+➁，每个部分都有相同的瓶颈（NIC），因此带宽限制为 400 Gbps（双向）。对于 SNIC ➀+➂，它受到 SNIC ➂ 的瓶颈，由于它占用了 PCIe1 的两个方向，因此受到 PCIe 单向（256 Gbps）的限制（见图 5（b））。然而，如果 SNIC ➀ 以相反的方向使用（即 READ 和 WRITE），SNIC ➀+➂ 可以达到更高的限制。例如，如果我们将 SNIC ➂ 上的数据传输带宽限制为 56 Gbps，聚合带宽可以达到 456 Gbps（理论上）。这表明有选择地将一小部分数据卸载到 SoC 可能是最佳的。最后，如果可能的话，通常最好将 SNIC ➀ 或 ➁ 与 DMA (➀&#x2F;➁+➂*) 结合使用，尽管 DMA 比 RDMA 慢（参见第 3.3 节）。这是因为 DMA 具有更好的 PCIe 利用率（不通过 PCIe）和 RNIC 利用率（不使用 RNIC）。</p>
+<h4 id="附-3"><a href="#附-3" class="headerlink" title="附"></a>附</h4><p>同时从客户端向主机和 SoC 发送请求 (SNIC ➀+➁) 可以更好地利用 NIC 内核来处理小型 RDMA 请求，特别是在相反方向使用时（例如，一个用于读取，一个用于写入）。 相反，不受控制地使用机器内（主机-SoC）通信 (SNIC ➂) 可能会损害机器间通信，而这正是使用 SmartNIC 的内在目的。 具体来说，如果 PCIe 的单向带宽小于 NIC 的双向带宽，则使用 SNIC ➂ 可能会引入隐藏的瓶颈。 因此，我们应该始终仅在有空闲资源时才考虑使用 SNIC ➂。 具体来说，如果机器建通信使 NIC 饱和，则SNIC ➂ 使用的带宽不应大于 P−N，其中 P 和 N 分别是 PCIe 和网络的限制。 例如，在我们的测试台上它应该是 56 Gbps。 使用 SNIC ➂* 可以减少路径之间的干扰，但 SNIC ➂* 也有局限性：它比 SNIC ➂ 慢。<br>最后，在现实世界的分布式系统中，单个通信路径无法完全饱和 SmartNIC 的所有资源是很常见的。 例如，SNIC ➁ 是最快的，但受到 SoC 内存较小和较弱内核的限制。 另一方面，仅使用 SNIC ➀ 作为 RNIC 会浪费 SoC 上的所有资源。 因此，我们应该同时使用 SmartNIC 提供的多条路径，但要小心避免它们之间的干扰。</p>
+<h3 id="优化指南"><a href="#优化指南" class="headerlink" title="优化指南"></a>优化指南</h3><p>本节介绍我们的优化指南，以智能地利用 SmartNIC 的多个通信路径来提高分布式系统的性能。 具体来说，考虑到需要通过 SmartNIC 加速的目标分布式系统的功能（例如分布式文件系统中的文件复制），我们建议设计人员考虑以下步骤：</p>
+<ol>
+<li>设计 SmartNIC 的潜在替代方案来支持给定的功能，并根据我们研究发现的性能特征对其进行优化。</li>
+<li>根据系统特定标准对备选方案进行评估和排名。</li>
+<li>依次选择和组合替代方案，直到 SmartNIC 的资源饱和。</li>
+</ol>
+<h4 id="系统特定的标准"><a href="#系统特定的标准" class="headerlink" title="系统特定的标准"></a>系统特定的标准</h4><p>标准可以是系统设计者想要实现的理想属性，也可以是系统的限制。对于分布式文件系统中的复制，其属性包括低主机 CPU 开销和高网络带宽利用率。对于分解的键值存储，其属性包括较少的网络放大、低延迟和高吞吐量。主机只有很少或没有CPU可供我们使用的限制。</p>
+<h4 id="讨论"><a href="#讨论" class="headerlink" title="讨论"></a>讨论</h4><p>我们目前仅以贪婪的方式考虑替代方案的组合，这对于现实世界的分布式系统中的大多数网络功能来说已经足够了。此外，SmartNIC 通常提供有限数量的可用选项。请注意，有效地组合替代方案具有挑战性。对于不同的系统，不同的替代方案可能会消耗 SmartNIC 上的不同资源，而它们的组合可能会涉及不同级别的资源争用。我们之前的分析（包括不同通信路径的瓶颈以及同时利用 SmartNIC 上的多个路径）将指导设计人员避免大多数性能争用。然而，如何系统地选择和组合不同的路径是我们未来的工作。</p>
+<h2 id="案例学习"><a href="#案例学习" class="headerlink" title="案例学习"></a>案例学习</h2><p>为了证明我们的研究和优化指南的有效性，本节介绍了两个详细的案例研究。</p>
+<h3 id="分布式文件系统"><a href="#分布式文件系统" class="headerlink" title="分布式文件系统"></a>分布式文件系统</h3><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>文件复制是分布式文件系统中容错的关键支柱。随着 RDMA 和非易失性存储器（NVM）的出现，一个吸引人的趋势是使用 RDMA 直接复制远程 NVM 上的文件更新以获得更好的性能，即 RDMA 原语可以直接写入 NVM 就像 DRAM 一样，网络和 NVM 带宽得到充分利用。</p>
+<h4 id="制定替代方案"><a href="#制定替代方案" class="headerlink" title="制定替代方案"></a>制定替代方案</h4><p>文件复制的理想特性是高性能、高网络利用率和低主机 CPU 开销。在我们的 SmartNIC 上实现文件复制有三种替代方案，如图 14 所示。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317194.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ol>
+<li>替代方案1</li>
+</ol>
+<p>它来自 SmartNIC 上最先进的分布式文件系统 LineFS，它将文件复制完全卸载到 SoC。SoC 将压缩并复制文件，以减少通过网络传输的数据，同时主机 CPU 使用率较低。收到复制请求后，主 SoC 从主机读取文件 (➂)，对其进行压缩 (➃)，然后通过链式复制将文件写入远程备份。具体来说，如果有多个备份，第二个备份会进一步将日志重新复制到链上的下一个备份，以此类推。</p>
+<ol start="2">
+<li>替代方案2</li>
+</ol>
+<p>根据我们的研究，我们可以将 A1 中的 ➂ 替换为 ➂*，以减少对 PCIe 带宽（特别是 SmartNIC 上的 PCIe1）的干扰。</p>
+<ol start="3">
+<li>替代方案3</li>
+</ol>
+<p>主机可以使用 WRITE (➀)直接将文件从主机写入远程备份。 请注意，此方法通常会跳过文件压缩，以防止产生不小的主机 CPU 开销（参见图 13 (a)）。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317272.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="基线"><a href="#基线" class="headerlink" title="基线"></a>基线</h4><p>LineFS 是一个基于 NVM 和 SmartNIC 的最先进的分布式文件系统。 它采用 A1来复制文件。 我们在其开源代码库上进一步实现了 A2 和 A3，并使用更高效的 RDMA 实现重写其后端，以扩展到 200 Gbps 网络的网络带宽，例如使用异步和批量 RDMA 操作。</p>
+<h4 id="对每个替代方案进行优化"><a href="#对每个替代方案进行优化" class="headerlink" title="对每个替代方案进行优化"></a>对每个替代方案进行优化</h4><p>默认情况下，LineFS 在 A1 的开源代码库中采用 16 MB 的块大小。根据第 3.3 节中描述的建议#3，我们将其缩小到 256 KB，以获得比 ➂ 更好的性能。该优化进一步适用于 A2 和 A3。</p>
+<h4 id="分析替代方案"><a href="#分析替代方案" class="headerlink" title="分析替代方案"></a>分析替代方案</h4><p>A1 是卸载文件复制的最直接方法，减少了通过网络传输的数据(d vs. d x ratio)。因此，理想的峰值带宽是 N&#x2F;ratio，其中 N 是 SmartNIC 的带宽限制。 然而，A1 没有考虑 ➂（第3.3节）昂贵的 PCIe 占用，甚至无法使文件传输的网络带宽饱和。将主设备的 PCIe 限制 (uni) 表示为 P 。A1 的文件传输带宽 d 受到 $\frac{p}{1 + ratio}$ 的限制，因为每个数据包必须经过 PCIe1 out 链路两次。如图 14 所示，一个是从 SoC 到 RNIC（d 字节），另一个是从 SoC 到远程（d × ratio 字节）。在我们的平台上（p &#x3D; 256 Gbps），因此当压缩率低于 28% 时，A1 仅比文件未压缩（其性能受到网络瓶颈 N &#x3D; 200 Gbps）更好。更糟糕的是，当遇到不好的压缩率（≥28%）时， A1 无法使 SmartNIC 的网络带宽饱和。例如，在不压缩的情况下（ratio &#x3D; 1），A1 的峰值仅为 128 Gbps。<br>图 13 (b) 展示了 A1 在 LineFS 文件写入基准测试上的结果。此基准测试不压缩文件。我们可以看到，当主机空闲时，A1 仅使用 8 个客户端实现了 117 Gbps。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317549.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>A2 通过将 ➂ 替换为 ➂* 解决了 A1 较差的 PCIe 利用率问题。如图 13 (b) 所示，在不同客户端数量下，A2 比 A1 快 1.01–1.13 倍。然而，由于以下两个原因，A2 未能达到接近 200 Gbps 的结果（峰值为 133 Gbps）。首先，➂* 的 WRITE 无法充分利用我们平台上的全部 PCIe 带宽（见图 11）。<img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317876.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>其次，SoC 计算能力较差也可能成为文件复制的性能瓶颈。A3 绕过了 A1 的 PCIe 占用问题，以及 A2 的 DMA  WRITE 慢和 SoC 弱的问题。同时，其数据路径较短（见图14）。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051321414.png" srcset="/img/loading.gif" lazyload alt="image.png">如图13(a)所示，与 A2 相比，A3 等待日志确认的时间缩短了 40%。结果，在不同的客户端设置下，A3 的复制带宽比 A2 快 5–41%。缺点是即使不考虑压缩（文件系统），A3 也会占用更多 CPU 周期，见图 13(a)。这是因为 A1 和 A2 能够消化 SoC 上的文件日志。因此，与 A2 相比，A3 的总体处理时间减少了 8%（A3 等待日志确认的时间缩短了 40%，总体看上去减少了 8%）。</p>
+<h4 id="选择并组合替代方案"><a href="#选择并组合替代方案" class="headerlink" title="选择并组合替代方案"></a>选择并组合替代方案</h4><p>由于 A2 总是比 A1 好，所以我们只会考虑将 A2 与 A3 结合起来。 正如我们之前分析过的，A3 比 A2 更快。 因此，增加组合路径 (A2 + A3) 中 A3 的比率始终会提高性能，如图 15 所示。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317677.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>但是，如果启用高网络利用率的文件压缩，则主机 CPU 利用率很高，如图 13 (a) 所示。禁用 A3 压缩将降低网络利用率，同样展示在图 15 中。具体来说，当增加客户端中路径 A3 的百分比时，考虑到固定的 50% 压缩比，网络利用率从 50% 降低到 0%。<br>考虑到 A2 具有更好的网络利用率，我们采用贪心的方法，首先用 A2 使 SoC 饱和，以获得更好的网络利用率。之后，客户端使用 A3 进行文件复制。这种方法可以实现两全其美：组合路径比 A2 更快，网络利用率比 A3 更好。</p>
+<h4 id="评估结果"><a href="#评估结果" class="headerlink" title="评估结果"></a>评估结果</h4><p>图 13 (b) 和 (c) 分别进一步展示了主机 CPU 空闲和繁忙时 A2 + A3 的文件复制基准测试结果。我们遵循与 LineFS 基准测试相同的设置，并向主机 CPU 添加 CPU 密集型工作负载（streamcluster）以模拟繁忙的实验设置。当 CPU 空闲和繁忙时，A2 + A3 分别比原始 LineFS 快 7–30% 和 4–21%，得益于 SmartNIC 的更高效使用以及多个执行路径的智能利用。</p>
+<h3 id="分解的键值存储"><a href="#分解的键值存储" class="headerlink" title="分解的键值存储"></a>分解的键值存储</h3><h4 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h4><p>基于 RDMA 的分类键值存储 (R-KVS) 在现代数据中心中很普遍。在 R-KVS 中，一个或多个内存服务器存储索引（通常是哈希表）和值。其他机器上的客户端使用 READ 来遍历索引并检索相应的值来处理请求（即 get），请参见图 16 中的 A1。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317361.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="制定替代方案-1"><a href="#制定替代方案-1" class="headerlink" title="制定替代方案"></a>制定替代方案</h4><p>期望的特性是高吞吐量、低延迟和最小的网络放大。限制是我们几乎不能使用主机 CPU（即禁用路径 ➀ 的 SEND&#x2F;RECV）。SmartNIC 为 R-KVS 提供了五种替代方案，如图 16 所示。</p>
+<ol>
+<li>替代方案1</li>
+</ol>
+<p>客户端将 SmartNIC 视为普通 RNIC，并使用 READ 来处理获取请求 (➀)。 这种方法会受到网络放大的影响。</p>
+<ol start="2">
+<li>替代方案2</li>
+</ol>
+<p>一种直观的卸载方法是使用 SEND&#x2F;RECV (➁) 将获取请求发送到 SoC。 然后，SoC 可以遍历索引并通过 RDMA 或 DMA READ 读取主机上的值。 这种方法有效地消除了网络放大。</p>
+<ol start="3">
+<li>替代方案3</li>
+</ol>
+<p>A2 的一个缺点是从 SoC 读取数据到主机比从主机本地内存读取数据要慢。一种优化是将索引卸载到 SoC 内存 (➃)。这种方法类似于客户端的索引缓存，但在 SmartNIC 缓存索引更有效。每个客户端都有一个较小的内存，只能缓存分解设置中的数百个条目，而 SmartNIC 具有相对较大的 SoC 内存（例如 Bluefield-2 上的 16 GB），可以缓存所有索引。</p>
+<ol start="4">
+<li>替代方案4</li>
+</ol>
+<p>使用 SEND&#x2F;RECV (➁) 访问 SoC 上的索引无法充分利用 SmartNIC 的 NIC 内核，因为 SEND&#x2F;RECV 的峰值吞吐量仅为 21.6 M reqs&#x2F;s。因此，我们可以使用 READs 来遍历 SoC 上的索引 (➁)，并使用另一个 READ 来检索主机上的值 (➀)。这种方法仍然具有网络放大的效果，但可以利用快速路径 (➁) 来提高性能（参见 3.2 节）。</p>
+<ol start="5">
+<li>替代方案5</li>
+</ol>
+<p>与索引缓存类似，SoC 内存可以进一步缓存一部分值（例如热键的值）。这种方法避免了使用先前替代方案中昂贵的通信路径 (➂)。</p>
+<h4 id="基线-1"><a href="#基线-1" class="headerlink" title="基线"></a>基线</h4><p>DrTM-KV 是针对 RDMA 优化的最先进的 KV 存储：它采用簇链接哈希索引，这样客户端通常可以在一次读取中找到给定键的值位置。具体来说，对于一个 get 请求，客户端首先读取一个 64B 的 bucket（基于 key 的 hash ），找到其中对应值的远程地址，然后用另一个READ来获取该值。DrTM-KV 支持客户端索引缓存以跳过第一个 READ，但由于内存限制，它在分解的环境中可能并不总是可行，因此我们禁用它。</p>
+<h4 id="对每个替代方案进行优化-1"><a href="#对每个替代方案进行优化-1" class="headerlink" title="对每个替代方案进行优化"></a>对每个替代方案进行优化</h4><p>我们根据我们的研究 (第 3 节) 在 DrTM-KV 上实施 A1–A5。具体来说，我们仔细地为与 SoC CPU（A2、A3 和 A5）相关的替代方案启用了门铃批处理。此外，我们对 A4 和 A5 应用建议 #1，将一些热键复制到多个副本中以抑制偏差。我们使用 DMA (➂*) 而不是 RDMA (➂) 来实现 A2 和 A3，因为它由于较低的延迟而总是更快。例如，使用 ➂*，A2 吞吐量提高了 79%。 A2 和 A3 不会受到第 3.3 节中发现的低 DMA 吞吐量的影响，因为 SoC 将首先成为瓶颈。</p>
+<h4 id="分析替代方案-1"><a href="#分析替代方案-1" class="headerlink" title="分析替代方案"></a>分析替代方案</h4><p>我们在所有实验中使用 YCSB C（100% get）和默认 Zipfian 请求分布（θ &#x3D; 0.99）。键和值的有效负载大小分别为 8 B 和 64 B，与之前的工作类似。在微基准设置之后，我们使用一台客户端计算机来测量延迟，并部署多达 11 台客户端计算机来测量峰值吞吐量。<br>图 17 表明没有任何路径可以同时实现高吞吐量和低延迟。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317396.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>A5 (SEND&#x2F;RECV) 实现了最低延迟 (4.6 μs)，因为它完全消除了网络放大问题和昂贵的主机 SoC 通信 (➂)。然而，其峰值吞吐量（17.6 M req&#x2F;s）明显低于其他一些替代方案。具体来说，A5（READ）和A4的峰值吞吐量分别达到70M reqs&#x2F;s和58.3M reqs&#x2F;s。它们具有更高的吞吐量，因为到 SoC 的 RDMA (➀) 路径更快（第 3.2 节）。请注意，A5 并不总是可以实现，这需要在 SoC 内存中缓存所有键值。因此，如果 SoC 内核成为瓶颈，A4 是合适的设计 (➃)。A1 比 A4 具有更高的延迟和更低的吞吐量，因为到主机的RDMA (➀) 相对较慢。A2 和 A3 受到缓慢的主机-SoC 通信的瓶颈（➂，请参阅第 3.3 节），这不适合卸载 KV 存储请求。</p>
+<h4 id="选择并组合替代方案-1"><a href="#选择并组合替代方案-1" class="headerlink" title="选择并组合替代方案"></a>选择并组合替代方案</h4><p>我们的分析表明最佳组合是 A4 和 A5。最初，前几个客户端使用 A5，而后面的客户端则使用 A4。准确的切换点可以通过使用排队理论来对 SoC 的容量和 RNIC 的功能进行建模来估计，如之前的工作一样。<br>此外，使用 A5 也带来了挑战，因为客户端不知道 SoC 中缓存了哪些值。尽管 A3 可以用作缓存未命中的后备路径，但它会导致性能显着下降（参见图 17）。<br><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312051317837.png" srcset="/img/loading.gif" lazyload alt="image.png"><br>为了解决这个问题，我们提供了一个简单的解决方案：当发生缓存未命中时，SoC 将值的地址返回给客户端，然后客户端发出 READ 指令来检索相应的值，类似于 A4。在现实世界的倾斜工作负载中（例如，YCSB），缓存未命中的情况很少见。</p>
+<h4 id="评估结果-1"><a href="#评估结果-1" class="headerlink" title="评估结果"></a>评估结果</h4><p>图 18 显示了 YCSB C 上的延迟和吞吐量结果。我们通过增加客户端计算机的数量来绘制图表。A4 + A5 的组合实现了 68M reqs&#x2F;s 的峰值吞吐量，分别比 RNIC、A1 和 A4 高 25%、36% 和 12%。请注意，我们省略了 A2 和 A3，因为它们受到 SoC 内核的瓶颈，并且峰值吞吐量极低。A4 + A5 的优势主要来自于利用更快的 SoC RDMA 和 SoC 内核来减少网络放大。</p>
+<h2 id="讨论-1"><a href="#讨论-1" class="headerlink" title="讨论"></a>讨论</h2><h3 id="概括性"><a href="#概括性" class="headerlink" title="概括性"></a>概括性</h3><p>尽管我们的研究主要集中于一种特定的 SmartNIC，Bluefield-2，但我们相信我们的研究结果和建议可以应用于类似硬件架构的其他 off-path SmartNIC。这些 SmartNIC 通过连接异构 SoC 并使用 PCIe 交换机将 SoC 和 RNIC 桥接在一起，扩展了支持 RDMA 的 NIC，例如 Stingray PS225（扩展了 NetXtreme 100 Gbps RNIC）。我们已经确认我们的所有结果都适用于 Bluefield-1。而且，下一代 Bluefield（Bluefield-3）仍然遵循相同的架构，除了使用更快的 RNIC（400 Gbps ConnectX-7）、PCIe（5.0）和 SoC（ARMv8.2+ A78）之外。尽管其他 SmartNIC 的参数可能与 Bluefield-2 不同，但我们的方法、分析工具（开源）和性能模型（例如表 4）也适用于它们。<br>此外，DPDK 是另一种基于 SmartNIC 的流行通信原语。从 NIC 的角度来看，DPDK 类似于 UD 上的 SEND&#x2F;RECV。因此，我们相信我们的大部分发现仍然适用于 DPDK。 不幸的是，我们没有基于以太网的测试平台来进一步证实这一点。</p>
+<h3 id="对硬件供应商的建议"><a href="#对硬件供应商的建议" class="headerlink" title="对硬件供应商的建议"></a>对硬件供应商的建议</h3><p>我们的研究发现了一些可以通过硬件改进来缓解的异常情况，我们建议供应商考虑这些问题。例如，当前主机到 SoC DMA 必须卸载到 SoC 来执行，而支持 CXL 可以利用更强大的主机 CPU DMA 引擎。然而，以程序员友好的方式做到这一点将需要 SoC 操作系统和主机操作系统之间的强有力的合作。据我们所知，目前还没有 SmartNIC 支持 CXL。此外，供应商可以支持 CCI，以缓解第 3.2 节中提到的写入偏差问题。此外，将 SoC PCIe MTU 与主机对齐可能会在传输大负载时提高 PCIe 性能。最后，我们鼓励供应商披露更多 SmartNIC 的硬件细节，以帮助解释和证实我们的研究结果。</p>
+<h2 id="其他相关工作"><a href="#其他相关工作" class="headerlink" title="其他相关工作"></a>其他相关工作</h2><h3 id="SmartNIC-卸载"><a href="#SmartNIC-卸载" class="headerlink" title="SmartNIC 卸载"></a>SmartNIC 卸载</h3><p>将计算卸载到 SmartNIC 引起了学术界和工业界的极大关注。 卸载的任务包括网络功能，微服务和其他的一些功能。 我们有着相同的愿景——通过将计算和通信卸载到 SmartNIC 来提高分布式系统的性能，但进一步利用 SmartNIC 的多个通信路径。 此外，大多数先前的工作都集中在利用 on-path SmartNIC 的单一路径，因此我们的工作可以启发未来对 on-path SmartNIC 的 multi-path 卸载的研究。</p>
+<h3 id="RDMA-卸载"><a href="#RDMA-卸载" class="headerlink" title="RDMA 卸载"></a>RDMA 卸载</h3><p>在 SmartNIC 出现之前，许多分布式系统将远程内存访问卸载到单向 RDMA 原语。然而，先前的工作已经观察到单向 RDMA 的不良语义，因此利用了高级 RDMA 功能（比如 WAIT，DCT）或者引入新的 RDMA 原语。这些努力与我们的工作正交，并且在将来使用 SmartNIC 时也可以从我们的发现中受益。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>使用 SmartNIC 设计高性能分布式系统需要深入了解底层硬件细节。 本文对路径外 SmartNIC 进行了全面的研究。 与之前的工作不同，我们探讨了 SmartNIC 架构及其计算单元的异构性如何影响与其组件相关的通信性能。 我们进一步为设计人员提出了第一个优化指南，以智能地利用分布式系统的 SmartNIC 的多个通信路径，并通过改进两个分布式系统来演示我们的指南。 总的来说，我们的研究可以帮助系统设计人员在将 SmartNIC 应用到高性能分布式系统之前更好地理解它们。</p>
+
+                
+              </div>
+            
+            <div style="text-align: center; margin: auto;"><!--自己添加的打赏模块：开始-->
+              
+            </div> <!--自己添加的打赏模块：结束-->
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/" class="category-chain-item">毕业设计</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/DPU%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91/" class="category-chain-item">DPU论文翻译</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%AF%95%E4%B8%9A%E8%AE%BE%E8%AE%A1/" class="print-no-link">#毕业设计</a>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91/" class="print-no-link">#论文翻译</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Characterizing_Off-path_SmartNIC_for_Accelerating_Distributed_Systems论文翻译</div>
+      <div>https://lumen3ever.top/2023/12/05/Characterizing-Off-path-SmartNIC-for-Accelerating-Distributed-Systems论文翻译/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>YaoHuaiyu</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/06/%E6%83%85%E6%99%AF%E8%AE%BE%E8%AE%A1-%E7%BB%9F%E8%AE%A1%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E6%9C%80%E5%A4%9A%E7%9A%84%E5%89%8D10%E4%B8%AAIP/" title="情景设计_统计海量数据中出现次数最多的前10个IP">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">情景设计_统计海量数据中出现次数最多的前10个IP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/03/C++_STL/" title="C++_STL面试常见题">
+                        <span class="hidden-mobile">C++_STL面试常见题</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"i-rong/i-rong.github.io","repo-id":"R_kgDOKWfs4w","category":"Q&A","category-id":"DIC_kwDOKWfs484Ca0Ey","theme-light":"light","theme-dark":"dark","mapping":"pathname","reactions-enabled":1,"emit-metadata":0,"input-position":"top","lang":"zh-CN"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      皖ICP备2023018648号
+    </a>
+  </span>
+  
+    
+      <span class="beian-police">
+        
+        <span class="beian-police">Copyright Lumen3ever 版权所有</span>
+      </span>
+    
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

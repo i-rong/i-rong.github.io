@@ -1,0 +1,985 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/bg/wu.png">
+  <link rel="icon" href="/img/bg/wu.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="YaoHuaiyu">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="原文Students’ Guide to Raft 翻译背景在我们深入研究Raft之前，一些背景可能是有用的。6.824曾经有一组基于Paxos的实验，它们都是用Go语言构建的;之所以选择Go，是因为它对学生来说很容易学习，而且非常适合编写并发的分布式应用程序（goroutine特别方便）。在四个实验的过程中，学生构建了一个容错的分片键值存储。第一个实验让他们构建了一个基于共识的日志库，第二个实验">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Students_Guide_to_Raft翻译">
+<meta property="og:url" content="https://lumen3ever.top/2023/10/27/Students_Guide_to_Raft%E7%BF%BB%E8%AF%91/index.html">
+<meta property="og:site_name" content="YHY的博客">
+<meta property="og:description" content="原文Students’ Guide to Raft 翻译背景在我们深入研究Raft之前，一些背景可能是有用的。6.824曾经有一组基于Paxos的实验，它们都是用Go语言构建的;之所以选择Go，是因为它对学生来说很容易学习，而且非常适合编写并发的分布式应用程序（goroutine特别方便）。在四个实验的过程中，学生构建了一个容错的分片键值存储。第一个实验让他们构建了一个基于共识的日志库，第二个实验">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raft.github.io/logo/solo.svg">
+<meta property="article:published_time" content="2023-10-26T19:29:17.000Z">
+<meta property="article:modified_time" content="2023-11-09T10:33:09.892Z">
+<meta property="article:author" content="YaoHuaiyu">
+<meta property="article:tag" content="Raft">
+<meta property="article:tag" content="分布式共识算法">
+<meta property="article:tag" content="MIT6.824官方指导">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raft.github.io/logo/solo.svg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Students_Guide_to_Raft翻译 - YHY的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lumen3ever.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>YHY&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Students_Guide_to_Raft翻译"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-10-27 03:29" pubdate>
+          2023年10月27日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          95 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Students_Guide_to_Raft翻译</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="原文"><a href="#原文" class="headerlink" title="原文"></a>原文</h3><p><a target="_blank" rel="noopener" href="https://thesquareplanet.com/blog/students-guide-to-raft/">Students’ Guide to Raft</a></p>
+<h3 id="翻译"><a href="#翻译" class="headerlink" title="翻译"></a>翻译</h3><h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>在我们深入研究Raft之前，一些背景可能是有用的。6.824曾经有一组<a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2015/labs/lab-3.html">基于Paxos的实验</a>，它们都是用<a target="_blank" rel="noopener" href="https://go.dev/">Go语言</a>构建的;之所以选择Go，是因为它对学生来说很容易学习，而且非常适合编写并发的分布式应用程序（goroutine特别方便）。在四个实验的过程中，学生构建了一个容错的分片键值存储。第一个实验让他们构建了一个基于共识的日志库，第二个实验在此基础上添加了一个键值存储，第三个实验将多个容错集群之间的键空间分片，并由容错分片主机处理配置更改。我们还有第四个实验，学生们必须处理机器的故障和恢复，无论磁盘是否完好无损。这个实验是学生的默认期末专题。</p>
+<p>今年，我们决定使用Raft重写所有这些实验。前三个实验都是一样的，但是第四个实验被放弃了，因为持久性和故障恢复已经内置到Raft中。本文将主要讨论我们在第一个实验中的经验，因为它是与Raft最直接相关的实验，尽管我也将涉及在Raft之上构建应用程序（如第二个实验）。</p>
+<p>对于那些刚刚开始了解Raft的人来说，<a target="_blank" rel="noopener" href="https://raft.github.io/">Raft算法网站</a>上的文字对Raft进行了最好的描述：</p>
+<blockquote>
+<p>Raft是一个共识算法，旨在易于理解。它在容错和性能方面与Paxos相当。不同的是，它被分解成相对独立的子问题，并且它清楚地解决了实际系统所需的所有主要部分。我们希望Raft能够让更多的人获得共识，并且这些更广泛的人能够开发出比现在更高质量的基于共识的系统。</p>
+</blockquote>
+<p>像这样的<a target="_blank" rel="noopener" href="https://thesecretlivesofdata.com/raft/">可视化</a>给予了协议主要组件的一个很好的概述，并且该论文给出了直观地给出了为什么需要各个部分。如果您还没有阅读过<a target="_blank" rel="noopener" href="https://raft.github.io/raft.pdf">扩展的Raft论文</a>，那么在继续本文之前，您应该先阅读一下，因为我将假定您对Raft相当熟悉。</p>
+<p>像其他的分布式共识算法一样，细节决定成败。在没有故障的稳定状态下，Raft的行为很容易理解，并且可以以直观的方式解释。例如，从可视化中可以很容易地看到，假设没有失败，最终将选出一个领导者，并且最终发送给领导者的所有操作都将由追随者以正确的顺序应用。然而，当引入延迟消息、网络分区和故障服务器时，每一个if、but和and都变得至关重要。特别是，我们发现有许多 bug 会反复出现，原因很简单，就是在阅读论文时产生了误解或疏忽。这个问题并非 Raft 独有，所有提供正确性的复杂分布式系统都会遇到这个问题。这个问题并不是Raft所独有的，在所有提供正确性的复杂分布式系统中都会出现。</p>
+<h4 id="实现Raft"><a href="#实现Raft" class="headerlink" title="实现Raft"></a>实现Raft</h4><p>Raft的最终指南在Raft论文的图2中。此图指定了在Raft服务器之间交换的每个RPC的行为，给出了服务器必须维护的各种不变量，并指定了某些操作应该何时发生。我们将在本文的其余部分中<strong>大量</strong>讨论图2。<strong>必须严格遵守</strong>。</p>
+<p>图2定义了在任何状态下，每个服务器应该为每个传入的RPC做什么，以及何时应该发生某些其他事情（例如，何时可以安全地应用日志中的条目）。首先，您可能会试图将图2视为某种非正式的指南;您只读了一遍，然后开始编写一个实现，该实现大致遵循它所说的内容。这样做，您将快速启动并运行一个主要工作的Raft实现。然后问题就开始了。</p>
+<p>事实上，图2是非常精确的，它所做的每一个声明都应该被视为<strong>必须</strong>，而不是<strong>应该</strong>。例如，当您收到一个<code>AppendEntries</code>或<code>RequestVote</code> RPC时，您可以合理地重置一个peer的选举计时器，因为这两者都表明其他对等体认为它是领导者，或者正在试图成为领导者。直觉上，这意味着我们不应该干涉。但是，如果你仔细阅读图2，它说：</p>
+<blockquote>
+<p>如果选举超时，而没有收到来自当前领导人的<code>AppendEntries</code>RPC或没有为候选人<strong>授予</strong>投票：转换为候选人。</p>
+</blockquote>
+<p>事实证明，这种区别很重要，因为前一种实现在某些情况下会导致活性显著降低。</p>
+<p><u>译者注解：注意，这里的<strong>当前领导人</strong>和<strong>授予投票</strong>很重要。</u></p>
+<h5 id="细节的重要性"><a href="#细节的重要性" class="headerlink" title="细节的重要性"></a>细节的重要性</h5><p>为了使讨论更具体，让我们考虑一个例子，让做6.824的学生出错。Raft论文在许多地方提到了心跳RPC。具体来说，领导者会偶尔（至少每个心跳间隔一次）向所有peer发送一个<code>AppendEntries</code>RPC，以防止它们开始新的选举。如果leader没有新的entries要发送到特定的peer，则该<code>AppendEntries</code>RPC不包含任何条目，并被视为心跳。</p>
+<p>许多同学会认为心跳是有些“特殊的”；当一个peer收到心跳时，它应该将其与非心跳的<code>AppendEntries</code>RPC区别对待，许多人的实现是在peer收到心跳时简单地重置它们地选举定时器，然后返回success，而不执行图2中指定地任何检查。这是<strong>非常危险</strong>的。通过接受RPC，follower隐式地告诉leader他们的日志与leader的日志匹配，直到<code>prevLogIndex</code>(包括<code>prevLogIndex</code>的位置都是匹配的，这个<code>prevLogIndex</code>被包含在<code>AppendEntries</code>的参数中)。当Leader收到返回结果的时候，它可能会认为一些entries已经被复制到了大多数的server上(然而这是错误的)，并开始commit这些entries。</p>
+<p>许多人遇到的另一个问题(通常是在解决上述问题后立刻出现的)是，当接收到一个心跳的时候，它们会截断follower的日志中在<code>prevLogIndex</code>之后的日志，然后在follower的日志上附加上所有从<code>AppendEntries</code>参数中传进来的entries。这<strong>同样</strong>也是不正确的，我们可以再一次看向图2：</p>
+<blockquote>
+<p><strong>如果</strong>现有的entry和新的entry冲突(相同的index但是不同的term)，则删除现有entry及其后面的所有entry。</p>
+</blockquote>
+<p>这里的<strong>如果</strong>是很关键的。如果这个follower拥有leader发送过来的所有entry，那么这个follower就<strong>绝对不应该</strong>截断它的log。必须保留领导者发送的entries之后的任何元素。这是因为我们可能从leader那里收到了一个过时的<code>AppendEntries</code>RPC，并且截断log的话意味着“收回”我们可能已经告诉leader的我们的日志中的entry。</p>
+<h4 id="Debugging-Raft"><a href="#Debugging-Raft" class="headerlink" title="Debugging Raft"></a>Debugging Raft</h4><p>不可避免地，你的第一次Raft实现已经会是错误的，第二次也是，然后是第三次、第四次。一般来说，每一个都会比前一次少一些bug，而且根据经验，大多数的bug都是因为没有忠实地遵循图2。</p>
+<p>当你在debug地时候，Raft通常有四个主要的bug来源：</p>
+<ul>
+<li>活锁</li>
+<li>不正确或者不完整的RPC handlers</li>
+<li>未能遵守规则</li>
+<li>term的混淆</li>
+</ul>
+<p>除以上四个，死锁也是一个常见的问题，但是死锁这个问题通常可以通过记录所有的锁定和解锁来调试，并找出你正在使用但是没有释放的锁。让我们依次考虑其中的每一个：</p>
+<h5 id="活锁"><a href="#活锁" class="headerlink" title="活锁"></a>活锁</h5><p>当你的系统活锁，系统中的每一个节点都在做一些事情，但是所有的节点集体处于一种没有进展的状态。这在Raft中很容易发生，特别是如果你不严格遵循图2的话。一种活锁的场景出现地特别频繁；没有领导者被选举出来，或者一旦一个领导者被选举出来，其他一些节点就开始选举，迫使最近当选地领导者立即退位。</p>
+<p>出现这种情况的原因有很多，但是这里有一些很多学生都犯过的错误：</p>
+<ul>
+<li><p><strong>确保</strong>你完全按照图2所示的重置了选举计时器。具体来说，你应该只在以下几种情况出现时重新启动你的选举计时器，如果a)你从<strong>当前</strong>的Leader处收到了一个<code>AppendEntries</code>RPC(即，如果在<code>AppendEntries</code>中的term已经过期了，那么就不应该重置计时器)；b)你正在开始一个选举；c)你将投票授权给另外一个peer</p>
+<p>最后一种情况在不可靠的网络中尤其重要，因为在这种情况下，follower可能有不同的日志；在这种情况下，通常会有很少一部分的服务器，而大多数服务器都愿意为这一小部分服务器投票。如果一有别人请求你为它们投票你就重置选举计时器的话，这会使得具有过时日志的服务器和具有较长日志的服务器有相同的可能性向前迈进。</p>
+<p>事实上，因为只有很少的服务器有足够的最新日志，这些服务器不太可能在足够的和平中举行选举。如果你遵循图2中的规则，具有最新日志的服务器将不会被过时服务器的选举所打断，因此更有可能完成选举并成为领导者。</p>
+</li>
+<li><p>遵循图2的指示决定何时开始选举。特别要注意的时，如果你是一个候选人(即，你现在正在进行一场选举)，但是选举计时器触发，你应该开始另一场选举。这对于避免由于RPC延迟或丢弃而导致的系统停滞非常重要。</p>
+</li>
+<li><p>在处理传入的RPC之前，请确保遵循“Rules for Servers”(在论文的图2中)中的第二条规定。第二条规定说：</p>
+<blockquote>
+<p>如果RPC request或者response中包含了term T &gt; currentTerm：那么就设置currentTerm &#x3D; T，并且转换为Follower</p>
+</blockquote>
+<p>举个例子。如果你在当前term已经投过票了，并且传入了一个有着更高term的<code>RequestVote</code>RPC，你应该首先停下并采用它们的term(从而重置votedFor)，然后处理RPC，这将导致你授予投票！</p>
+</li>
+</ul>
+<h5 id="不正确的RPC处理程序"><a href="#不正确的RPC处理程序" class="headerlink" title="不正确的RPC处理程序"></a>不正确的RPC处理程序</h5><p>尽管图2详细说明了每个RPC处理程序应该做什么，但仍容易忽略一些细微之处。下面是我们反复看到的一些例子，你应该在实现中注意：</p>
+<ul>
+<li><p>如果某个步骤显示“reply false”，这意味着您应该立即回复，而不执行任何后续步骤。</p>
+</li>
+<li><p>如果你得到了一个<code>AppendEntries</code>RPC，RPC里面的<code>prevLogIndex</code>指向超出了你日志的结尾(prevLogIndex &gt;&#x3D; len(rf.logs))，你应该像你确实有那个entry但是term不匹配来处理它(即，回复为false)</p>
+</li>
+<li><p>即使<strong>leader没有发送任何的entries</strong>，也应该检查图2以确定是否有RPC处理程序。</p>
+</li>
+<li><p>最后一步（#5）的最小值是必需的，它需要用最后一个<strong>新</strong>条目的索引来计算。仅仅有一个从你的log中应用从<code>lastApplied</code>到<code>commitIndex</code>的entry的函数并在到达log的结尾时停止的函数是<strong>不够</strong>的。这是因为您的日志中的entries可能与领导者发送给您的entries（这些条目都与您的日志中的条目匹配）不同。因为#3规定只有在条目冲突的情况下才截断日志，这些entry不会被删除，如果leaderCommit超出了leader发送给您的条目，您可能会应用不正确的entry。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202310271623270.png" srcset="/img/loading.gif" lazyload alt="image-20231027162302164"><br><u>译者注解：这里的意思是说可能有这样一种情况：</u></p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202310271640961.png" srcset="/img/loading.gif" lazyload alt="image-20231027164049901"></p>
+<p><u>如上图，从lastApplied+1到LeaderCommit这之间的term都与Follower日志中的entry匹配，所以这些entry不会被删除，如果LeaderCommit超出了上面的LeaderCommit，那么就有可能应有不正确的entry。</u></p>
+</li>
+<li><p>严格按照第5.4节所述执行“最新日志”检查<strong>非常重要</strong>。不要欺骗自己只是检查它的长度！</p>
+</li>
+</ul>
+<h5 id="未能遵守规则"><a href="#未能遵守规则" class="headerlink" title="未能遵守规则"></a>未能遵守规则</h5><p>虽然Raft的文章非常明确地说明了如何实现每个RPC处理程序，但它也没有说明许多规则和不变量的实现。这些都列在图2右侧的“Rules for Servers”块中。虽然其中一些是相当不言自明的，但也有一些需要非常仔细地设计您的应用程序，以便它不违反The Rules：</p>
+<ul>
+<li><p>如果在执行过程中的任何时候<code>commitIndex</code> &gt; <code>lastApplied</code>，则应应用特定的日志条目。是否直接执行此操作并不重要（例如，在<code>AppendEntries</code>RPC处理程序中），但重要的是确保此应用程序仅由一个实体执行。具体来说，你需要有一个专用的“applier”，或者锁定这些applies，这样其他一些例程就不会检测到需要应用的条目，也会尝试应用。</p>
+</li>
+<li><p>确保定期检查commitIndex &gt; lastApplied，或者在commitIndex更新后（即，在matchIndex更新之后）。例如，如果您在向peer发送<code>AppendEntries</code>的同时检查commitIndex，则可能必须等到<strong>下一个</strong>entry被追加到日志中，然后才能应用刚刚发送并得到确认的entry。</p>
+</li>
+<li><p>如果一个leader发送了一个<code>AppendEntries</code>RPC，并且被拒绝了，但是<strong>不是因为日志不一致的原因</strong>(唯一的原因只有leader的任期已经结束了)，那么leader应该立即下台，并且<strong>不要</strong>更新<code>nextIndex</code>。如果你更新了，那么如果你立即重新开始选举，那就会和重置<code>nextIndex</code>操作冲突。</p>
+</li>
+<li><p>一个leader不允许将commitIndex更新到上一个term(或者未来term)的某个位置。因此，正如规则所说，你需要特别检查<code>log[N].term == currentTerm</code>。这是因为如果entry不是来自当前term，Raft领导者无法确定entry是否实际提交了(并且将来不会被更改)。这在本文的图8中得到了说明。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202310271711296.png" srcset="/img/loading.gif" lazyload alt="image-20231027171132235"></p>
+</li>
+</ul>
+<p>一个常见的混淆来源是nextIndex和matchIndex之间的差异。特别是，你可能会观察到matchIndex &#x3D; nextIndex - 1，而根本没有实现matchIndex。这是不安全的。虽然nextIndex和matchIndex通常会同时更新为类似的值(具体来说，nextIndex &#x3D; matchIndex + 1)，但是两者的用途完全不同。nextIndex是关于leader与给定follower共享什么前缀的猜测。它通常是相当乐观的(Leader分享一切)，只有在负面反应时才向后移动。例如，当一个leader刚刚被选举时，nextIndex被设置为日志末尾entry的index。在某种程度上，nextIndex用于性能——你只需要将这些东西发送给peer。</p>
+<p><code>matchIndex</code>被用于安全。这是一个关于这个leader的日志的哪些前缀需要共享给给定的follower的保守的测量。<code>matchIndex</code>的值不能被设置得太高，因为这有可能导致<code>commitIndex</code>向前移动得太远。这是为什么<code>matchIndex</code>被初始化为-1(即，我们认为没有前缀是一致的)，并且只有当一个follower肯定地确认了一个<code>AppendEntries</code>RPC时才会更新<code>matchIndex</code>。</p>
+<h5 id="任期混淆"><a href="#任期混淆" class="headerlink" title="任期混淆"></a>任期混淆</h5><p>任期混淆是指服务器被来自旧任期的RPC混淆。一般来说，在接收RPC时这不是问题，因为图2中的规则准确地说明了当你看到一个旧的term的时候应该做什么。然而，图2一般不会讨论当您得到了旧的RPC<strong>回复</strong>时应该做什么。根据经验，我们发现到目前为止最简单的方法是首先在回复中记录term(它可能高于您当前的term)，然后将当前term与你在原始RPC中发送的term进行比较。如果两者不同，就删除回复并返回。<strong>只有</strong>当两个term相同时，你才应该继续处理答复。你可以通过一些巧妙的协议推理来做进一步的优化，但是前面说的这种方法似乎效果不错。如果<strong>不</strong>这样做，就会走上一条漫长而曲折的道路，其中充满了鲜血、汗水、泪水和绝望。</p>
+<p>一个相关但不完全相同的问题时，假设在发送RPC和收到回复之间你的状态(Leader&#x2F;Candidate&#x2F;Follower)没有改变。一个很好的例子是，当你收到对RPC的响应时，设置<code>matchIndex = nextIndex - 1</code>或者<code>matchIndex = len(log)</code>。这是不安全的，因为这两个值都有可能在发送RPC后被更新。取而代之，正确的做法是将<code>matchIndex</code>更新为你最初在RPC中发送的参数中的<code>prevLogIndex + len(entries[])</code></p>
+<h5 id="An-aside-on-optimizations"><a href="#An-aside-on-optimizations" class="headerlink" title="An aside on optimizations"></a>An aside on optimizations</h5><p>Raft文件包括一些有趣的可选特性。在6.824中，我们需要学生去实现其中的两件事：日志压缩(section 7)和加速日志回溯(第8页顶部左侧)。前者是避免日志无限制增长所必需的，而后者则有助于快速更新过时的followers。</p>
+<p>这些功能不是”core Raft”的一部分，因此在论文中没有像主要共识算法那样受到足够多的关注。日志压缩已经相当全面地介绍过了(如图13所示)，但是忽略了一些设计细节，如果你读得太随意，可能会错过这些细节：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202311011048144.png" srcset="/img/loading.gif" lazyload alt="image-20231101104821961"></p>
+<ul>
+<li><p>当对某个应用程序状态进行快照时，需要确保应用程序状态与Raft日志中某个已知索引之后的状态相对应。这意味着应用程序要么需要向Raft传达快照对应的索引，要么Raft需要延迟应用其他日志条目，直到快照完成。</p>
+</li>
+<li><p>本文没有讨论服务器崩溃时的恢复协议，因为现在涉及到了快照。特别是，如果单独提交Raft状态和快照，服务器可能会在持久化快照和持久化更新的Raft状态之间崩溃。这是一个问题，因为图13中的步骤6规定快照所覆盖的Raft日志<strong>必须被丢弃</strong>。</p>
+<p>如果服务器重新启动的时候，它读取更新的快照，但是读取过时的日志，它可能最终应用快照中<strong>已包含的某些日志条目</strong>。这是因为commitIndex和lastApplied没有持久化，所以Raft不知道这些日志条目已经被应用。解决方法是向Raft引入一段持久化状态，记录Raft持久日志中第一个条目对应的“真实的”索引。然后可以将其与加载的快照的<code>lastIncludedIndex</code>进行比较，以确定要丢弃日志头部的哪些元素。</p>
+</li>
+</ul>
+<p>加速日志回溯优化的详细说明非常少，可能是因为作者认为它对于大多数部署都不是必需的。从文本中并不清楚从客户端发送回来的冲突index和term应该如何被领导者用来确定去使用什么nextIndex。我们相信作者<strong>可能</strong>希望您遵循的协议是：</p>
+<ul>
+<li>如果一个follower的log中没有位于prevLogIndex上的entry的话，那么它应该返回<code>conflictIndex = len(log)</code>和<code>conflictTerm = None</code>。</li>
+<li>如果一个follower的log中有位于prevLogIndex上的entry的话，但是term不匹配，它应该返回<code>conflictTerm = log[prevLogIndex].Term</code>，然后在它的log中找到第一个term与conflictTerm匹配的entry，得到这个entry的index。</li>
+<li>收到冲突响应后，leader应该首先在其日志中搜索conflictTerm。如果它在日志中找到一个包含该term的entry，它应该将<code>nextIndex</code>设置为日志中该term中最后一个entry的索引之后的索引。</li>
+<li>如果没有找到有那个term的entry，它应该将设置<code>nextIndex = conflictIndex</code>。</li>
+</ul>
+<p>一个折中的解决方案是使用<code>conflictIndex</code>(忽略<code>conflictTerm</code>)，这简化了实现，但是leader有时会向follower发送比使它们更新严格必要的更多的log entries。</p>
+<h5 id="Applications-on-top-of-Raft"><a href="#Applications-on-top-of-Raft" class="headerlink" title="Applications on top of Raft"></a>Applications on top of Raft</h5><p>当在Raft之上构建服务时（例如第二个6.824 Raft实验中的键&#x2F;值存储），服务和Raft日志之间的交互可能很难正确。本节详细介绍了开发过程的一些方面，你可能会发现这些方面在构建应用程序时很有用。</p>
+<h5 id="应用客户端操作"><a href="#应用客户端操作" class="headerlink" title="应用客户端操作"></a>应用客户端操作</h5><p>您可能对如何使用复制的日志实现应用程序感到困惑。你可以从你的服务开始，每当它收到客户端请求时，将该请求发送给leader，等待Raft应用某些东西，执行客户端请求的操作，然后返回到客户端。虽然这在单客户端系统中很好，但它不适用于并发客户端。</p>
+<p>相反，服务应该构造为<strong>状态机</strong>，客户端操作将机器从一种状态转换到另一种状态。你应该在某个地方有一个循环，它一次接受一个客户端操作（在所有服务器上都是相同的顺序-这就是Raft的作用），并按顺序将每个操作应用于状态机。这个循环应该是你的代码中<strong>唯一</strong>涉及应用程序状态的部分（6.824中的键&#x2F;值映射）。这意味着您的面向客户端的RPC方法应该简单地将客户端的操作提交给Raft，然后等待该操作被这个“applier循环”应用。只有当客户端的命令出现时，才应该执行它，并读取任何返回值。请注意，<strong>这包括读取请求</strong>！</p>
+<p>这就带来了另一个问题：如何知道客户端操作何时完成？在没有失败的情况下，这很简单——您只需等待放入日志中的内容返回即可(即，通过apply())。当这种情况发生时，您将结果返回给客户端。但是，如果出现故障怎么办？例如，当客户最初联系您时，您可能是领导者，但现在其他人已经当选，并且您放入日志中的客户请求已被丢弃。显然，你需要让客户端再试一次，但你如何知道何时告诉他们错误？</p>
+<p>解决这个问题的一个简单方法是记录客户端操作在插入时出现在Raft日志中的位置。一旦该索引处的操作被发送到<code>apply()</code>，你就可以根据该索引出现的操作是否实际上是您放在那里的操作来判断客户端操作是否成功。如果不是，则发生了故障，并且可以向客户端返回错误。</p>
+<h5 id="重复检测"><a href="#重复检测" class="headerlink" title="重复检测"></a>重复检测</h5><p>一旦客户端在遇到错误时重试操作，您就需要某种重复检测方案——如果客户端向服务器发送<code>APPEND</code>，没有收到回复，并将其重新发送到下一个服务器，则<code>apply()</code>函数需要确保<code>APPEND</code>不会执行两次。要做到这一点，您需要为每个客户端请求提供某种唯一的标识符，以便您可以识别过去是否看到过（更重要的是，是否应用过）特定的操作。此外，此状态需要成为状态机的一部分，以便所有Raft服务器<strong>消除</strong>相同的重复项。</p>
+<p>有许多方法可以指定这种标识符。一个简单而有效的方法是给给予每个客户端一个唯一的标识符，然后让它们用单调递增的序列号标记每个请求。如果客户端重新发送请求，它将重复使用相同的序列号。您的服务器跟踪它从每个客户端看到的最新序列号，并简单地忽略它已经看到的任何操作。</p>
+<h5 id="Hairy-corner-cases"><a href="#Hairy-corner-cases" class="headerlink" title="Hairy corner-cases"></a>Hairy corner-cases</h5><p>如果您的实现遵循上面给出的general outline，那么您可能会遇到至少两个微妙的问题，如果不进行认真的调试，这些问题可能很难识别。为了节省你的时间，它们在这里：</p>
+<p>Re-appearing indices(多次出现的索引)：假设你的Raft库中有方法<code>Start()</code>可以接受一个命令，并返回该命令在日志中的索引（以便您知道何时返回客户端，如上所述）。你可能会假设你永远不会看到<code>Start()</code>返回一个相同的index两次，或者退一步说如果你看到了一个index两次，那么第一次返回该索引的命令一定失败了。事实证明，即使没有服务器崩溃，这两件事都不是真的。</p>
+<p>请考虑以下包含五台服务器（S1到S5）的场景。最初，S1是领导者，其日志为空。</p>
+<ol>
+<li>两个客户端操作（C1和C2）到达S1。</li>
+<li><code>Start()</code>操作C1返回1，C2返回2。</li>
+<li>S1向S2发送一个包含C1和C2的<code>AppendEntries</code>，但它的所有其他报文都丢失了。</li>
+<li>S3继续向前成为了候选人</li>
+<li>S1和S2不会投票给S3，但S3、S4和S5都会投票，所以S3成为领导者。</li>
+<li>另一个客户端请求C3进入S3。</li>
+<li>S3调用<code>Start()</code>（返回1）</li>
+<li>S3向S1发送一个<code>AppendEntries</code>，S1从日志中删除C1和C2，并添加C3。</li>
+<li>S3在向任何其他服务器发送<code>AppendEntries</code>之前失败。</li>
+<li>S1前进，因为它的日志是最新的，所以它被选为领导者。</li>
+<li>另一个客户端请求C4到达S1</li>
+<li>S1调用<code>Start()</code>，返回2（<code>Start(C2)</code>也返回2）。</li>
+<li>所有S1发送出去的<code>AppendEntries</code>都丢失了，S2向前</li>
+<li>S1和S3不会投票给S2，但S2、S4和S5都会投票，所以S2成为领导者。</li>
+<li>客户端请求C5进入S2</li>
+<li>S2调用<code>Start()</code>，返回3。</li>
+<li>S2成功地向所有的服务器发送了<code>AppendEntries</code>，S2通过在下一个心跳中包括更新的<code>leaderCommit = 3</code>来向服务器报告。</li>
+</ol>
+<p>由于S2的日志是<code>[C1 C2 C5]</code>，这意味着在索引2处提交（并在所有服务器上应用，包括S1）的条目是C2。尽管C4是在S1处返回索引2的最后一个客户端操作。</p>
+<h5 id="The-four-way-deadlock"><a href="#The-four-way-deadlock" class="headerlink" title="The four-way deadlock"></a>The four-way deadlock</h5><p>所有的功劳都归功于<a target="_blank" rel="noopener" href="https://stebalien.com/">史蒂芬艾伦</a>，另一个6.824 TA。他发现了以下令人讨厌的四向死锁，当在Raft上构建应用程序时，您很容易陷入这种死锁。</p>
+<p>不管Raft代码的结构如何，它可能有一个类似<code>Start()</code>的函数，允许应用程序向Raft日志添加新命令。它同样可能有一个死循环，当<code>commitIndex</code>被更新时，在应用程序上为<code>lastApplied</code>和<code>commitIndex</code>之间的日志中的每个元素调用<code>apply()</code>。这些例程可能都需要一些锁<code>a</code>。在基于Raft的应用程序中，您可能会在RPC处理程序中的某个位置调用Raft的<code>Start()</code>函数，并且在其他位置有一些代码，每当Raft应用新的日志条目时，就会通知这些代码。由于这两者需要通信（即，RPC方法需要知道它放入日志中的操作何时完成），它们可能都需要一些锁<code>b</code>。</p>
+<p>在Go中，这四个代码段可能看起来像这样：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a *App)</span></span> RPC(args <span class="hljs-keyword">interface</span>&#123;&#125;, reply <span class="hljs-keyword">interface</span>&#123;&#125;) &#123;<br>    <span class="hljs-comment">// ...</span><br>    a.mutex.Lock()<br>    i := a.raft.Start(args)<br>    <span class="hljs-comment">// update some data structure so that apply knows to poke us later</span><br>    a.mutex.Unlock()<br>    <span class="hljs-comment">// wait for apply to poke us</span><br>    <span class="hljs-keyword">return</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> Start(cmd <span class="hljs-keyword">interface</span>&#123;&#125;) <span class="hljs-type">int</span> &#123;<br>    r.mutex.Lock()<br>    <span class="hljs-comment">// do things to start agreement on this new command</span><br>    <span class="hljs-comment">// store index in the log where cmd was placed</span><br>    r.mutex.Unlock()<br>    <span class="hljs-keyword">return</span> index<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a *App)</span></span> apply(index <span class="hljs-type">int</span>, cmd <span class="hljs-keyword">interface</span>&#123;&#125;) &#123;<br>    a.mutex.Lock()<br>    <span class="hljs-keyword">switch</span> cmd := cmd.(<span class="hljs-keyword">type</span>) &#123;<br>    <span class="hljs-keyword">case</span> GetArgs:<br>        <span class="hljs-comment">// do the get</span><br>	<span class="hljs-comment">// see who was listening for this index</span><br>	<span class="hljs-comment">// poke them all with the result of the operation</span><br>    <span class="hljs-comment">// ...</span><br>    &#125;<br>    a.mutex.Unlock()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *Raft)</span></span> AppendEntries(...) &#123;<br>    <span class="hljs-comment">// ...</span><br>    r.mutex.Lock()<br>    <span class="hljs-comment">// ...</span><br>    <span class="hljs-keyword">for</span> r.lastApplied &lt; r.commitIndex &#123;<br>      r.lastApplied++<br>      r.app.apply(r.lastApplied, r.log[r.lastApplied])<br>    &#125;<br>    <span class="hljs-comment">// ...</span><br>    r.mutex.Unlock()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>现在考虑系统是否处于以下状态：</p>
+<ul>
+<li><code>App.RPC</code>刚刚接受了一个<code>a.mutex</code>并调用了<code>Raft.Start</code></li>
+<li><code>Raft.Start</code>正在等待锁<code>r.mutex</code></li>
+<li><code>Raft.AppendEntries</code>持有锁<code>r.mutex</code>，并且刚刚调用了<code>App.apply</code></li>
+</ul>
+<p>我们现在陷入死锁，因为：</p>
+<ul>
+<li><code>Raft.AppendEntries</code>不会释放它持有的锁直到<code>App.apply</code>返回</li>
+<li><code>App.apply</code>不会返回直到它得到了锁<code>a.mutex</code></li>
+<li><code>a.mutex</code>不会被释放直到<code>App.RPC</code>返回</li>
+<li><code>App.RPC</code>不会返回直到<code>Raft.Start</code>返回</li>
+<li><code>Raft.Start</code>不会返回直到它得到<code>r.mutex</code></li>
+<li><code>Raft.Start</code>必须等待<code>Raft.AppendEntries</code></li>
+</ul>
+<p>有几种方法可以解决这个问题。最简单的方法是在<code>App.RPC</code>调用<code>a.raft.Start</code>之后再获取锁<code>a.mutex</code>。但是，这意味着在<code>App.RPC</code>有机会记录它希望得到通知的事实之前，<code>App.apply</code>可能会被调用来执行<code>App.RPC</code>刚刚调用的<code>Raft.Start </code>操作。另一种可能产生更整洁设计的方案是使用一个从<code>Raft</code>调用<code>r.app.apply</code>的专用线程。这个线程可以在每次更新<code>commitIndex</code>时得到通知，然后不需要持有锁来应用，从而打破死锁。</p>
+
+                
+              </div>
+            
+            <div style="text-align: center; margin: auto;"><!--自己添加的打赏模块：开始-->
+              
+            </div> <!--自己添加的打赏模块：结束-->
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/MIT6-824%E5%AE%98%E6%96%B9%E6%8C%87%E5%AF%BC/" class="category-chain-item">MIT6.824官方指导</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/MIT6-824%E5%AE%98%E6%96%B9%E6%8C%87%E5%AF%BC/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" class="category-chain-item">分布式系统</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Raft/" class="print-no-link">#Raft</a>
+      
+        <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/" class="print-no-link">#分布式共识算法</a>
+      
+        <a href="/tags/MIT6-824%E5%AE%98%E6%96%B9%E6%8C%87%E5%AF%BC/" class="print-no-link">#MIT6.824官方指导</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Students_Guide_to_Raft翻译</div>
+      <div>https://lumen3ever.top/2023/10/27/Students_Guide_to_Raft翻译/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>YaoHuaiyu</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年10月27日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/10/27/Raft_Locking%E7%BF%BB%E8%AF%91/" title="Raft_Locking翻译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Raft_Locking翻译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/10/21/%E8%AF%A6%E8%A7%A3go_Cond/" title="详解go_Cond">
+                        <span class="hidden-mobile">详解go_Cond</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"i-rong/i-rong.github.io","repo-id":"R_kgDOKWfs4w","category":"Q&A","category-id":"DIC_kwDOKWfs484Ca0Ey","theme-light":"light","theme-dark":"dark","mapping":"pathname","reactions-enabled":1,"emit-metadata":0,"input-position":"top","lang":"zh-CN"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      皖ICP备2023018648号
+    </a>
+  </span>
+  
+    
+      <span class="beian-police">
+        
+        <span class="beian-police">Copyright Lumen3ever 版权所有</span>
+      </span>
+    
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1070 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/bg/wu.png">
+  <link rel="icon" href="/img/bg/wu.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="YaoHuaiyu">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="vector 简要介绍vector 是动态开辟的数组。元素在内存中连续存放。随机存取任何元素都能在常数时间内完成。在尾端增删元素具有较佳的性能， vector 底层原理 数据安排及操作方式与 array 非常相似。两者唯一的差别在于空间运用的灵活性。 array 是静态空间，一旦配置好了就不能改变了，如果程序需要一个更大的 array，只能自己再申请一个更大的 array，然后将以前的 array">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++_STL面试常见题">
+<meta property="og:url" content="https://lumen3ever.top/2023/12/03/C++_STL/index.html">
+<meta property="og:site_name" content="YHY的博客">
+<meta property="og:description" content="vector 简要介绍vector 是动态开辟的数组。元素在内存中连续存放。随机存取任何元素都能在常数时间内完成。在尾端增删元素具有较佳的性能， vector 底层原理 数据安排及操作方式与 array 非常相似。两者唯一的差别在于空间运用的灵活性。 array 是静态空间，一旦配置好了就不能改变了，如果程序需要一个更大的 array，只能自己再申请一个更大的 array，然后将以前的 array">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/ISO_C%2B%2B_Logo.svg/800px-ISO_C%2B%2B_Logo.svg.png">
+<meta property="article:published_time" content="2023-12-03T14:42:54.000Z">
+<meta property="article:modified_time" content="2023-12-13T07:12:26.324Z">
+<meta property="article:author" content="YaoHuaiyu">
+<meta property="article:tag" content="STL">
+<meta property="article:tag" content="C++基础知识">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/ISO_C%2B%2B_Logo.svg/800px-ISO_C%2B%2B_Logo.svg.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>C++_STL面试常见题 - YHY的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lumen3ever.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>YHY&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="C++_STL面试常见题"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-03 22:42" pubdate>
+          2023年12月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          70 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">C++_STL面试常见题</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="vector-简要介绍"><a href="#vector-简要介绍" class="headerlink" title="vector 简要介绍"></a>vector 简要介绍</h2><p>vector 是动态开辟的数组。元素在内存中连续存放。随机存取任何元素都能在常数时间内完成。在尾端增删元素具有较佳的性能，</p>
+<h2 id="vector-底层原理"><a href="#vector-底层原理" class="headerlink" title="vector 底层原理"></a>vector 底层原理</h2><ul>
+<li>数据安排及操作方式与 array 非常相似。两者唯一的差别在于空间运用的灵活性。</li>
+<li>array 是静态空间，一旦配置好了就不能改变了，如果程序需要一个更大的 array，只能自己再申请一个更大的 array，然后将以前的 array 中的内容全部拷贝到新的 array 中。</li>
+<li>动态开辟的空间，随着元素的加入，它的内部机制会自动扩容空间以容纳新的元素。vector 的关键技术在于对大小的控制以及重新分配时的数据移动效率。</li>
+<li>采用的数据结构是线性的连续空间（泛型的动态类型顺序表），它以两个迭代器 start 和 finish 分别指向配置得来的连续空间中目前已经被使用的空间。迭代器 end_of_storage 指向整个连续的尾部。</li>
+<li>在增加元素时，如果超过自身最大的容量，vector 则将自身的容量扩充为原来的两倍。扩充空间需要经过的步骤是：重新配置空间，元素移动，释放旧的内存空间。一旦 vector 空间重新配置，则指向原来 vector 的所有迭代器都失效了，因为 vector 的地址改变了。</li>
+</ul>
+<h2 id="vector-为什么要用加倍扩容而不是每次增加一个固定的扩容容量"><a href="#vector-为什么要用加倍扩容而不是每次增加一个固定的扩容容量" class="headerlink" title="vector 为什么要用加倍扩容而不是每次增加一个固定的扩容容量"></a>vector 为什么要用加倍扩容而不是每次增加一个固定的扩容容量</h2><ul>
+<li>vector 的 push_back 以成倍增长可以在均摊后达到 O(1) 的时间复杂度，相对于增长指定大小的 O(n) 时间复杂度更好。</li>
+<li>为了防止申请内存的浪费，现在使用较多的有 2 倍 与 1.5 倍的增长方式，而 1.5 倍的增长方式可以更好地实现对内存的重复利用。</li>
+</ul>
+<h2 id="vector-扩容的过程"><a href="#vector-扩容的过程" class="headerlink" title="vector 扩容的过程"></a>vector 扩容的过程</h2><ul>
+<li>完全弃用现有的内存空间，重新申请更大的内存空间；</li>
+<li>将旧内存空间中的数据，按照原有顺序移动到新的内存空间中；</li>
+<li>最后将旧的内存空间释放。</li>
+</ul>
+<h2 id="vector-的扩容倍数为什么是-1-5-倍或-2-倍"><a href="#vector-的扩容倍数为什么是-1-5-倍或-2-倍" class="headerlink" title="vector 的扩容倍数为什么是 1.5 倍或 2 倍?"></a>vector 的扩容倍数为什么是 1.5 倍或 2 倍?</h2><ul>
+<li>假如以 2 倍的扩容倍数来进行扩容(1, 2, 4, 8, 16…)，则第 i 次扩容期间所需要的空间容量是 $2^i$，假如第三次扩容时总共需要 8 个元素大小的空间，但是前 3 次已经释放的空间加起来是 7，7 &lt; 8，不足以满足第 3 次扩容时需要的新的空间大小，也就是说，如果恰好以 2 倍的扩容系数来扩容的话，那么每次扩容时前面释放的空间加起来都不足以支持本次的扩容。如果是以更高倍数的方式进行扩容，则这个空间浪费的问题会更加严重。也就是说，如果以 2 倍或更高的倍数进行扩容，会存在 2 个问题：<ul>
+<li>空间浪费可能比较大</li>
+<li>无法使用前面已经释放的空间</li>
+</ul>
+</li>
+<li>STL 标准没有严格说明我们应该按照哪一种方式进行扩容，因此不同 STL 的实现厂商都是按照自己的方式进行扩容的。</li>
+<li>一般情况下，在 Windows 的 VS 系列编辑器下，是按照 1.5 倍的方式进行扩容；在 Linux 的 g++ 中，是按照 2 倍的方式进行扩容的。</li>
+</ul>
+<h2 id="size、resize、reserve、capacity-的区别"><a href="#size、resize、reserve、capacity-的区别" class="headerlink" title="size、resize、reserve、capacity 的区别"></a>size、resize、reserve、capacity 的区别</h2><ul>
+<li>size 表示当前 vector 中有多少元素（即 finish - start）；当前容器所存储的个数。</li>
+<li>resize 可以改变有效空间的大小，也有改变默认值的功能。capacity 的大小也会随着改变。可以有多个参数。创建指定数量的元素并指定 vector 的存储空间。既分配空间又创建对象。</li>
+<li>reserver 是直接扩容到已经确定的大小，可以减少多次开辟、释放空间的问题（优化 push_back），从而达到提高效率的目的，其次还可以减少多次要拷贝数据的问题。reserve 只是保证 vector 中的空间大小（capacity）最少达到参数所指定的大小 n。并且它只有一个参数。指定 vector 的元素总数，不创建对象。</li>
+<li>capacity 函数表示它已经分配的内存中可以容纳多少元素（即 end_of_storage - start）。即容器在分配新的存储空间能存储的元素总数。返回 vector 中能存储元素的最大值。</li>
+</ul>
+<h2 id="vector-迭代器失效的问题"><a href="#vector-迭代器失效的问题" class="headerlink" title="vector 迭代器失效的问题"></a>vector 迭代器失效的问题</h2><p>迭代器的主要作用就是让算法能够不用关心底层数据结构，其底层实际就是一个指针，或者是对指针进行了封装，比如：vector 的迭代器就是原生态指针 T*。因此迭代器失效，实际就是迭代器底层对应指针所指向的空间被销毁了，而使用一块已经被释放的空间，造成的后果是程序崩溃（即如果继续使用已经失效的迭代器，程序可能会崩溃）</p>
+<h2 id="对于-vector-可能导致其迭代器失效的操作有哪些"><a href="#对于-vector-可能导致其迭代器失效的操作有哪些" class="headerlink" title="对于 vector 可能导致其迭代器失效的操作有哪些"></a>对于 vector 可能导致其迭代器失效的操作有哪些</h2><ul>
+<li><p>resize、reserve、insert、assign、push_back 等会引起其底层空间改变的操作，都有可能使迭代器失效。</p>
+</li>
+<li><p>指定位置元素的删除操作——erase</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> a[] = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>&#125;;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">v</span><span class="hljs-params">(a, a + <span class="hljs-keyword">sizeof</span>(a), <span class="hljs-keyword">sizeof</span>(<span class="hljs-type">int</span>))</span></span>;<br>    <span class="hljs-comment">// 使用 find 查找 3 所在位置的 iterator</span><br>    vector&lt;<span class="hljs-type">int</span>&gt;::iterator pos = <span class="hljs-built_in">find</span>(v.<span class="hljs-built_in">begin</span>(), v.<span class="hljs-built_in">end</span>(), <span class="hljs-number">3</span>);<br>    <span class="hljs-comment">// 删除 pos 位置的数据，导致 pos 迭代器失效</span><br>    v.<span class="hljs-built_in">erase</span>(pos);<br>    cout &lt;&lt; *pos &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>; <span class="hljs-comment">// 此处会导致非法访问</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>erase 删除 pos 位置元素后，pos 位置之后的元素会往前移动，没有导致底层空间的改变，理论上讲迭代器应该不会失效，但是如果 pos 刚好是最后一个元素，删完之后 pos 刚好是 end 位置，而 end 位置是没有元素的，那么 pos 就失效了。所以删除 vector 中任意位置上元素时，vs 就认为该位置迭代器失效了。</p>
+</li>
+</ul>
+<h2 id="push-back-和-emplace-back-的区别"><a href="#push-back-和-emplace-back-的区别" class="headerlink" title="push_back 和 emplace_back 的区别"></a>push_back 和 emplace_back 的区别</h2><p>emplace_back 和 push_back 的区别，主要就在于底层实现的机制不同。push_back() 向容器尾部添加元素时，首先会创建这个元素，然后再将这个元素拷贝或移动到容器中（如果是拷贝的话，之和会自行销毁先前创建的这个元素）；而 emplace_back 在实现的时候，则是直接在容器尾部创建这个元素，省去了拷贝或者移动元素的过程。</p>
+<h2 id="list-简单介绍"><a href="#list-简单介绍" class="headerlink" title="list 简单介绍"></a>list 简单介绍</h2><ul>
+<li>list 是顺序容器的一种。list 是一个双向链表。使用 list 需要包含头文件 list。双向链表的每个元素中都有一个指针指向后一个元素，也有一个指针指向前一个元素。</li>
+<li>在 list 容器中，在已经定位到要增删元素的位置的情况下，增删元素能在常数时间内完成。</li>
+<li>list不支持根据下标随机存取元素。</li>
+<li>在任何位置都能高效地插入和删除元素，只要改变元素的指针值，不需要拷贝元素。</li>
+</ul>
+<h2 id="list-的底层原理"><a href="#list-的底层原理" class="headerlink" title="list 的底层原理"></a>list 的底层原理</h2><ul>
+<li>list的底层是一个<strong>双向链表</strong>，以结点为单位存放数据，结点的地址在内存中不一定连续，每次插入或删除一个元素，就配置或释放一个元素空间。</li>
+<li>和 vector 容器迭代器的实现方式不同，由于 list 容器的元素并不是连续存储的，所以该容器迭代器中，必须包含一个可以指向 list 容器的指针，并且该指针还可以借助重载的 *、++、–、&#x3D;&#x3D;、!&#x3D; 等运算符，实现迭代器正确的递增、递减、取值等操作。</li>
+</ul>
+<h2 id="list-的常见函数"><a href="#list-的常见函数" class="headerlink" title="list 的常见函数"></a>list 的常见函数</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp">list.<span class="hljs-built_in">push_back</span>(elem); <span class="hljs-comment">// 在尾部加入一个元素</span><br>list.<span class="hljs-built_in">pop_back</span>(); <span class="hljs-comment">// 删除尾部元素</span><br>list.<span class="hljs-built_in">push_front</span>(); <span class="hljs-comment">// 在头部插入一个数据</span><br>list.<span class="hljs-built_in">pop_front</span>(); <span class="hljs-comment">// 删除头部数据</span><br>list.<span class="hljs-built_in">size</span>(); <span class="hljs-comment">// 返回容器中实际数据的个数</span><br>list.<span class="hljs-built_in">sort</span>(); <span class="hljs-comment">// 排序，默认由小到大 </span><br>list.<span class="hljs-built_in">unique</span>(); <span class="hljs-comment">// 移除数值相同的连续元素</span><br>list.<span class="hljs-built_in">back</span>(); <span class="hljs-comment">// 取尾部迭代器</span><br>list.<span class="hljs-built_in">erase</span>(iterator); <span class="hljs-comment">// 删除一个元素，参数是迭代器，返回的是删除迭代器的下一个位置</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="vector、list-插入问题"><a href="#vector、list-插入问题" class="headerlink" title="vector、list 插入问题"></a>vector、list 插入问题</h2><ul>
+<li>vector 中插入大量连续的数据时，如果预知数据量大小，可以通过 resize 来调整原先 vector 的空间大小，同时利用赋值 “&#x3D;”，可以减少耗时。</li>
+<li>list 可以通过遍历 list 然后 insert 插入，但还可以通过成员方法 splice 来进行插入，且效率较高，耗时较少。</li>
+</ul>
+<h2 id="vector-和-list-的优缺点"><a href="#vector-和-list-的优缺点" class="headerlink" title="vector 和 list 的优缺点"></a>vector 和 list 的优缺点</h2><ol>
+<li><p>vector 的优点</p>
+<ul>
+<li><p>下标随机访问</p>
+<p>vector 的底层是一段连续的物理空间，所以支持随机访问。</p>
+</li>
+<li><p>尾插尾删效率高</p>
+<p>跟数组类似，我们能够很轻易地找到最后一个元素，并完成各种操作。</p>
+</li>
+<li><p>CPU 高速缓存命中率高</p>
+<p>因为系统在底层访问数据地的时候，会将一段数据加载进 CPU，而不是只加载一个，会提前往后多加载一些，vector 的物理地址是连续的，所以我们在拿到数据的时候，CPU 访问后面的数据会更快。</p>
+</li>
+</ul>
+</li>
+<li><p>vector 的缺点</p>
+<ul>
+<li><p>前面部分插入删除数据效率低</p>
+<p>如果我们要在前面的部分插入或删除数据，我们不能直接插入或者删除，需要挪动数据，去覆盖或者增加一段空间，挪动数据的效率是 O(N) 的。</p>
+</li>
+<li><p>扩容有消耗，可能存在一定的空间浪费</p>
+<p>正常情况下，vector 的扩容机制是一旦达到当前空间的 capacity(容量)，那么就扩容原空间的 1.5倍 或者 2 倍(VS 一般是 1.5 倍，而 g++ 是 2 倍)，这样扩容就可能导致空间浪费，而且频繁扩容也会影响效率。</p>
+</li>
+</ul>
+</li>
+<li><p>list 的优点</p>
+<ul>
+<li><p>按需申请释放，不需要扩容</p>
+<p>list 是一个带头双向循环链表，那么链表就是一个个独立的空间链接起的，需要多少，就 new 多少，不存在空间浪费。</p>
+</li>
+<li><p>任意位置的插入删除效率高（对比 vector）</p>
+<p>因为 list 是双向循环链表，我们需要插入新的元素只需要改变原数据的 next 和 prev ，所以我们的插入删除效率是 O(1)。</p>
+</li>
+</ul>
+</li>
+<li><p>list 的缺点</p>
+<ul>
+<li><p>不支持下标随机访问</p>
+<p>因为 list 是链表，在存放数据的物理地址并不是连续的，所以我们也就不能支持下标随机访问。</p>
+</li>
+<li><p>CPU 高速缓存命中率低</p>
+<p>主要还是跟它的物理地址不连续有关，CPU 提前存的一段数据，可能跟下一个数据完全没有联系，因为它们空间不连续，所以就命中率低。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="vector-和-list-中，如果删除末尾的元素，其指针和迭代器如何变化？如果删除的是中间的元素呢？"><a href="#vector-和-list-中，如果删除末尾的元素，其指针和迭代器如何变化？如果删除的是中间的元素呢？" class="headerlink" title="vector 和 list 中，如果删除末尾的元素，其指针和迭代器如何变化？如果删除的是中间的元素呢？"></a>vector 和 list 中，如果删除末尾的元素，其指针和迭代器如何变化？如果删除的是中间的元素呢？</h2><ol>
+<li><p>迭代器和指针之间的区别</p>
+<ol>
+<li>迭代器不是指针，是类模板，表现得像指针。它只是模拟了指针的一些功能，重载了指针的一些操作符，-&gt;、++、– 等。迭代器封装了指针，是一个“可遍历 STL 容器内全部或部分元素”的对象，<strong>本质</strong>是封装了原生指针，是指针概念的一种提升，提供了比指针更高级的行为，相当于一种智能指针，它可以根据不同类型的数据结构来实现不同的 ++、– 等操作。</li>
+<li><strong>迭代器返回的是对象引用而不是对象的值</strong>，所以cout只能输出迭代器使用取值后的值而不能直接输出其自身。</li>
+</ol>
+</li>
+<li><p>vector 和 list 特性</p>
+<ol>
+<li><p>vector 特性</p>
+<p>动态数组。元素再内存中连续存放。随机存取任何元素都能在常数时间内完成。在尾端增删元素具有较大的性能(大部分情况下是常数时间)。</p>
+</li>
+<li><p>list 特性</p>
+<p>双向链表。元素在内存不连续存放。在任何位置增删元素都能在常数时间完成。不支持随机存取。</p>
+</li>
+</ol>
+</li>
+<li><p>vector 和 list 增删元素</p>
+<ol>
+<li>对于 vector 而言，删除某个元素以后，该元素后边的每个元素的迭代器都会失效，后边每个元素都往前移动一位，erase 返回下一个有效的迭代器。</li>
+<li>对于 list 而言，删除某个元素，只有“指向被删除元素”的那个迭代器失效，其它迭代器不受任何影响。</li>
+</ol>
+</li>
+</ol>
+<h2 id="简单说说-deque"><a href="#简单说说-deque" class="headerlink" title="简单说说 deque"></a>简单说说 deque</h2><ol>
+<li>deque 是一个双向开口的容器，所谓双向开口就是再头尾两端均可以做元素的插入和删除操作。</li>
+<li>deque 相比于 vector 最大的差异就在于支持常数时间内对首尾两端进行插入和删除操作，而且 deque 没有容量的概念，其内部采用分段连续内存空间来存储元素，在插入元素的时候随时都可以重新增加一段新的空间并链接起来。</li>
+<li>deque 提供了Ramdon Access Iterator，同时也支持随机访问和存取，但是它也为此付出了昂贵的代价，其复杂度不能跟 vector 的原生指针迭代器相提并论。在下面的讲解中会一一为大家介绍STL是怎样”辛苦地”维持一个随机访问迭代器的。</li>
+</ol>
+<h2 id="详细讲讲-deque-实现原理"><a href="#详细讲讲-deque-实现原理" class="headerlink" title="详细讲讲 deque 实现原理"></a>详细讲讲 deque 实现原理</h2><p>详见 <a href="STL_deque.md">STL源码剖析_deque</a></p>
+<h2 id="vector、list、deque-的选择原则"><a href="#vector、list、deque-的选择原则" class="headerlink" title="vector、list、deque 的选择原则"></a>vector、list、deque 的选择原则</h2><ul>
+<li>vector 可以随机存储元素(即可以通过公式直接计算出元素地址，而不需要挨个查找)，但在非尾部插入删除数据时，效率很低，适合对象简单，对象数量变化不大，随机访问频繁。除非必要，我们尽可能选择使用 vector 而非 deque，因为 deque 的迭代器比 vector 迭代器复杂很多。</li>
+<li>list 不支持随机存储，适用于对象大，对象数量变化频繁，插入和删除频繁，比如写多读少的场景。</li>
+<li>需要从首尾两端进行插入或删除操作的时候需要选择 deque。</li>
+</ul>
+<p>也即：</p>
+<ul>
+<li>需要对数据高效的随机访问(存取)，而不在乎插入和删除的效率，采用 vector。</li>
+<li>需要大量插入、删除数据，而不关心随机访问数据，采用 list。</li>
+<li>需要随机访问数据，而且关心头部和尾部增删数据的能力，采用 deque。</li>
+<li>对数据中间的增删操作比较多，采用 list，建议在排序的基础上，批量进行增删可以对运行效率提供最大的保证。</li>
+</ul>
+<h2 id="STL-迭代器是怎么删除元素的"><a href="#STL-迭代器是怎么删除元素的" class="headerlink" title="STL 迭代器是怎么删除元素的"></a>STL 迭代器是怎么删除元素的</h2><ol>
+<li>对于序列容器 vector，deque 来说，使用 erase 后，后边的每个元素的迭代器都会失效，后边每个元素都往前移动一位，erase 返回下一个有效的迭代器；</li>
+<li>对于关联容器 map，set 来说，使用了 erase 后，当前元素的迭代器失效，但是其结构是红黑树，删除当前元素，不会影响下一个元素的迭代器，所以在调用 erase 之前，记录下一个元素的迭代器即可；</li>
+<li>对于 list 来说，它使用了不连续分配的内存，并且它的 erase 方法也会返回下一个有效的迭代器，因此上面两种方法都可以使用。</li>
+</ol>
+<h2 id="STL-中的优先队列"><a href="#STL-中的优先队列" class="headerlink" title="STL 中的优先队列"></a>STL 中的优先队列</h2><p>优先队列(priority_queue)容器与队列一样，只能从队尾插入元素，从队首删除元素。但是它有一个特性，队列中最大的元素总是位于队首。出队时，并非按照先进先出的原则进行，而是将当前队列中最大的元素出队。这点类似于给队列里的元素进行了由大到小的顺序排序。元素的比较规则默认按元素值由大到小排序，可以重载“&lt;”操作符来重新定义比较规则。<strong>在优先队列中，队首元素一定是当前队列中优先级最高的那一个</strong>。</p>
+<h2 id="STL-容器动态链接可能产生的问题"><a href="#STL-容器动态链接可能产生的问题" class="headerlink" title="STL 容器动态链接可能产生的问题"></a>STL 容器动态链接可能产生的问题</h2><ul>
+<li><p>可能产生的问题</p>
+<p>容器是一种动态分配内存空间的一个变量集合类型变量。在一般的程序函数里，局部容器，参数传递容器，参数传递容器的引用，参数传递容器指针都是可以正常运行的，而在动态链接库函数内部使用容器也是没有问题的，但是给动态库函数传递容器的对象本身，则会出现内存堆栈破坏的问题。</p>
+</li>
+<li><p>产生问题的原因</p>
+<p>容器和动态链接库相互支持不够好，动态链接库函数中使用容器时，参数中只能传递容器的引用，并且要保证容器的大小不能超出初始大小，否则导致容器自动重新分配，就会出现内存堆栈破坏问题。</p>
+</li>
+</ul>
+<h2 id="map-和-unordered-map-实现原理"><a href="#map-和-unordered-map-实现原理" class="headerlink" title="map 和 unordered_map 实现原理"></a>map 和 unordered_map 实现原理</h2><ul>
+<li>map 内部实现了一个<strong>红黑树</strong>（红黑树是非严格平衡的二叉搜索树，而AVL是严格平衡的二叉搜索树），红黑树有自动排序的功能，因此map内部所有元素都是有序的，红黑树的每一个节点都代表着map的一个元素。因此，对于map进行的查找、删除、添加等一系列的操作都相当于是对红黑树进行的操作。map中的元素是按照二叉树（又名二叉查找树、二叉排序树）存储的，特点就是左子树上所有节点的键值都小于根节点的键值，右子树所有节点的键值都大于根节点的键值。使用中序遍历可将键值按照从小到大遍历出来。</li>
+<li>unordered_map 内部实现了一个<strong>哈希表</strong>（也叫散列表，hashtable），通过把关键码值映射到 Hash 表中一个位置来访问记录，查找时间复杂度可达 O(1)，其中在海量数据处理中有着广泛应用。其元素的排列顺序是无序的。</li>
+</ul>
+<h2 id="map-和-unordered-map-的优缺点"><a href="#map-和-unordered-map-的优缺点" class="headerlink" title="map 和 unordered_map 的优缺点"></a>map 和 unordered_map 的优缺点</h2><ol>
+<li><p>map</p>
+<ol>
+<li><p>优点</p>
+<ul>
+<li>有序</li>
+<li>基于红黑树实现，查找的时间复杂度是 O(nlogn)</li>
+</ul>
+</li>
+<li><p>缺点</p>
+<ul>
+<li>空间占用率高，虽然底层是红黑树实现的，提高了运行效率，但是每个节点都要保存父节点和孩子节点的红黑树的性质，使得每个节点都占用大量的空间。</li>
+</ul>
+</li>
+<li><p>适用场景</p>
+<p>适用于有序的结构</p>
+</li>
+</ol>
+</li>
+<li><p>unordered_map</p>
+<ol>
+<li>优点<ul>
+<li>底层是用哈希表实现的，查找效率非常高，时间复杂度为 O(1)。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>哈希表的建立比较费时</li>
+</ul>
+</li>
+<li>适用场景<ul>
+<li>对于查找问题，使用 unordered_map 更好。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="为什么-map-和-set-的插入删除效率比其他序列容器高，而且每次-insert-之后，以前保存的-iterator-不会失效"><a href="#为什么-map-和-set-的插入删除效率比其他序列容器高，而且每次-insert-之后，以前保存的-iterator-不会失效" class="headerlink" title="为什么 map 和 set 的插入删除效率比其他序列容器高，而且每次 insert 之后，以前保存的 iterator 不会失效"></a>为什么 map 和 set 的插入删除效率比其他序列容器高，而且每次 insert 之后，以前保存的 iterator 不会失效</h2><p>因为存储的是节点，不需要内存拷贝和内存移动。</p>
+<p>插入操作只是节点指针换来换去，节点内存没有改变，而 iterator 就像指向节点的指针，内存没变，指向内存的指针也不会变。</p>
+<h2 id="map-和-set-的区别"><a href="#map-和-set-的区别" class="headerlink" title="map 和 set 的区别"></a>map 和 set 的区别</h2><ol>
+<li>set是一种关联式容器，其特性如下：<ul>
+<li>set 以 RBTree 作为底层容器</li>
+<li>所得元素的只有 key 没有 value</li>
+<li>不允许出现 key 重复</li>
+<li>所有的元素都会被自动排序</li>
+<li>不能通过迭代器来改变 set 的 key 值，因为 set 的值就是 key，set 的迭代器是 const 的</li>
+</ul>
+</li>
+<li>map和set一样是关联式容器，其特性如下：<ul>
+<li>map 以 RBTree 作为底层容器</li>
+<li>所有元素都是 key + value 存在</li>
+<li>不允许 key 重复</li>
+<li>所有元素是通过 key 进行自动排序的</li>
+<li>map的 key 是不能修改的，但是其 key 对应的 value 是可以修改的</li>
+</ul>
+</li>
+</ol>
+<p>综上所述，map 和 set <strong>底层实现</strong>都是红黑树；map 和 set 的<strong>区别</strong>在于 map 的值不作为键，键和值是分开的。</p>
+<h2 id="STL-的内存优化"><a href="#STL-的内存优化" class="headerlink" title="STL 的内存优化"></a>STL 的内存优化</h2><p>STL 内存管理使用二级内存配置器</p>
+<ol>
+<li><p>第一级配置器</p>
+<ul>
+<li>第一级配置器以 malloc()、free()、realloc() 等 C 函数执行实际的内存配置、释放、重新配置等操作，并且能在内存需求不被满足的时候，调用一个指定的函数。一级空间配置器分配的是大于 128 字节的空间，如果分配不成功，调用句柄释放一部分内存，如果还不能分配成功，抛出异常。</li>
+<li>第一级配置器只是对 malloc 函数和 free 函数的简单封装，在 allocate 内调用 malloc，在 deallocate 内调用 free。同时第一级配置器的 oom_malloc 函数，用来处理 malloc 失败的情况。</li>
+</ul>
+</li>
+<li><p>第二级配置器</p>
+<p>第一级配置器直接调用 malloc 和 free 带来了几个问题：</p>
+<ul>
+<li>内存分配&#x2F;释放的效率低。</li>
+<li>当配置大量的小内存块时，会导致内存碎片比较严重。</li>
+<li>配置内存时，需要额外的部分空间存储内存块信息，所以配置大量的小内存块时，还会导致额外内存负担。</li>
+</ul>
+<p>如果分配的区块小于 128bytes，则以内存池管理，第二级配置器维护了一个自由链表数组，每次需要分配内存时，直接从相应的链表上取出一个内存节点就完成工作，效率很高。</p>
+<ul>
+<li>自由链表数组：自由链表数组其实就是个指针数组，数组中的每个指针元素指向一个链表的起始节点。数组大小为 16，即维护了 16 个链表，链表的每个节点就是实际的内存块，相同链表上的内存块大小都相同，不同链表的内存块大小不同，从 8 一直到 128。</li>
+<li>内存分配：allocate 函数内先判断要分配的内存大小，若大于 128 字节，直接调用第一级配置器，否则根据要分配的内存大小从 16 个链表中选出一个链表，取出该链表的第一个节点。若相应的链表为空，则调用 refill 函数填充该链表。默认是取出 20 个数据块。</li>
+<li>填充链表 refill：若 allocate 函数内要取出节点的链表为空，则会调用 refill 函数填充该链表。refill 函数内会先调用 chunk_alloc 函数从内存池分配一大块内存，该内存大小默认为 20 个链表节点大小，当内存池的内存也不足时，返回的内存块节点数目会不足 20 个。接着 refill 的工作就是将这一大块内存分成20份相同大小的内存块，并将各内存块连接起来形成一个链表。</li>
+</ul>
+</li>
+<li><p>内存池：chunk_alloc 函数内管理了一块内存池，当 refill 函数要填充链表时，就会调用 chunk_alloc 函数，从内存池取出相应的内存。</p>
+<ul>
+<li>在 chunk_alloc 函数内首先判断内存池大小是否足够填充一个有 20 个节点的链表，若内存池足够大，则直接返回20 个内存节点大小的内存块给 refill；</li>
+<li>若内存池大小无法满足 20 个内存节点的大小，但至少满足 1 个内存节点，则直接返回相应的内存节点大小的内存块给 refill；</li>
+<li>若内存池连 1 个内存节点大小的内存块都无法提供，则 chunk_alloc 函数会将内存池中那一点点的内存大小分配给其他合适的链表，然后去调用 malloc 函数分配的内存大小为所需的两倍。若 malloc 成功，则返回相应的内存大小给 refill；若 malloc 失败，会先搜寻其他链表的可用的内存块，添加到内存池，然后递归调用 chunk_alloc 函数来分配内存，若其他链表也无内存块可用，则只能调用第一级空间配置器。</li>
+</ul>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <div style="text-align: center; margin: auto;"><!--自己添加的打赏模块：开始-->
+              
+            </div> <!--自己添加的打赏模块：结束-->
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">C++基础知识</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/STL/" class="print-no-link">#STL</a>
+      
+        <a href="/tags/C-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="print-no-link">#C++基础知识</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>C++_STL面试常见题</div>
+      <div>https://lumen3ever.top/2023/12/03/C++_STL/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>YaoHuaiyu</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/05/Characterizing-Off-path-SmartNIC-for-Accelerating-Distributed-Systems%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91/" title="Characterizing_Off-path_SmartNIC_for_Accelerating_Distributed_Systems论文翻译">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Characterizing_Off-path_SmartNIC_for_Accelerating_Distributed_Systems论文翻译</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/03/STL_sort/" title="STL_sort">
+                        <span class="hidden-mobile">STL_sort</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"i-rong/i-rong.github.io","repo-id":"R_kgDOKWfs4w","category":"Q&A","category-id":"DIC_kwDOKWfs484Ca0Ey","theme-light":"light","theme-dark":"dark","mapping":"pathname","reactions-enabled":1,"emit-metadata":0,"input-position":"top","lang":"zh-CN"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      皖ICP备2023018648号
+    </a>
+  </span>
+  
+    
+      <span class="beian-police">
+        
+        <span class="beian-police">Copyright Lumen3ever 版权所有</span>
+      </span>
+    
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

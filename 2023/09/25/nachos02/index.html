@@ -1,0 +1,1103 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/bg/wu.png">
+  <link rel="icon" href="/img/bg/wu.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="YaoHuaiyu">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="一、实验目的实现Nachos的同步机制：锁和条件变量，并利用这些同步机制实现几个基础工具类。 二、实验要求 使用Thread::Sleep实现锁机制和条件变量。 使用Semaphore实现锁机制和条件变量。 使用锁机制和条件变量将实验1里实现的双向链表修改成线程安全的，对第1点、第2点的实现应分别测试。 实现一个线程安全的表结构。 实现一个大小受限的缓冲区。  三、实验设计及关键代码实现0.  实">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nachos02">
+<meta property="og:url" content="https://lumen3ever.top/2023/09/25/nachos02/index.html">
+<meta property="og:site_name" content="YHY的博客">
+<meta property="og:description" content="一、实验目的实现Nachos的同步机制：锁和条件变量，并利用这些同步机制实现几个基础工具类。 二、实验要求 使用Thread::Sleep实现锁机制和条件变量。 使用Semaphore实现锁机制和条件变量。 使用锁机制和条件变量将实验1里实现的双向链表修改成线程安全的，对第1点、第2点的实现应分别测试。 实现一个线程安全的表结构。 实现一个大小受限的缓冲区。  三、实验设计及关键代码实现0.  实">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925155300291.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925155846049.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925155935016.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160008697.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160239748.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160515936.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160547376.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160606254.png">
+<meta property="article:published_time" content="2023-09-25T06:48:25.000Z">
+<meta property="article:modified_time" content="2023-09-26T07:41:46.843Z">
+<meta property="article:author" content="YaoHuaiyu">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="nachos">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925155300291.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>nachos02 - YHY的博客</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lumen3ever.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>YHY&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/background.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="nachos02"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-09-25 14:48" pubdate>
+          2023年9月25日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          19k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          159 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">nachos02</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="一、实验目的"><a href="#一、实验目的" class="headerlink" title="一、实验目的"></a>一、实验目的</h1><p>实现Nachos的同步机制：锁和条件变量，并利用这些同步机制实现几个基础工具类。</p>
+<h1 id="二、实验要求"><a href="#二、实验要求" class="headerlink" title="二、实验要求"></a>二、实验要求</h1><ol>
+<li>使用Thread::Sleep实现锁机制和条件变量。</li>
+<li>使用Semaphore实现锁机制和条件变量。</li>
+<li>使用锁机制和条件变量将实验1里实现的双向链表修改成线程安全的，对第1点、第2点的实现应分别测试。</li>
+<li>实现一个线程安全的表结构。</li>
+<li>实现一个大小受限的缓冲区。</li>
+</ol>
+<h1 id="三、实验设计及关键代码实现"><a href="#三、实验设计及关键代码实现" class="headerlink" title="三、实验设计及关键代码实现"></a>三、实验设计及关键代码实现</h1><h2 id="0-实验准备"><a href="#0-实验准备" class="headerlink" title="0.  实验准备"></a>0.  实验准备</h2><ol>
+<li><p>Mesa语义和Hoare语义</p>
+<ul>
+<li><p>本实验要求使用的是Mesa语义，这两者的区别在于：</p>
+</li>
+<li><p>假如有两个线程T1和T2，T1因为资源不满足正处于等待队列中，这时有线程释放了T1所需要的资源，那么这个时候会发生什么呢？T1会立即被唤醒还是等待T2运行结束后再被唤醒？这种情形下的两种不同操作区分了两种语义：</p>
+<p>a) 对于Mesa语义来说，需要等到T2运行结束后，T1才会被唤醒。</p>
+<p>b) 对于Hoare语义来说，T1会被立刻唤醒。</p>
+</li>
+<li><p>简单来说，也就想当于Mesa是非抢占式的，而Hoare是抢占式的。</p>
+</li>
+<li><p>本实验中，使用Mesa语义，所以signal之后需要等待线程结束。</p>
+</li>
+</ul>
+</li>
+<li><p>相关的函数机制</p>
+<ul>
+<li><p><code>Thread::Sleep()</code>: 将当前的线程设置为阻塞状态</p>
+</li>
+<li><p><code>Scheduler::ReadyToRun(Thread\* thread)</code>: 将传入函数的线程thread设置为就绪态后，添加到就绪队列中。</p>
+</li>
+<li><p>中断相关函数：</p>
+<p>在使用Sleep之前，为了防止错误的中断，必须暂时关闭中断功能：</p>
+<p><code>IntStatus oldLevel = interrupt-&gt;SetLevel(IntOff);</code> 用于关闭中断。</p>
+<p><code>(void) interrupt-&gt;SetLevel(oldLevel);</code> 用于开启中断。</p>
+</li>
+</ul>
+</li>
+<li><p>理解信号的P、V操作</p>
+<p>P和V函数实现的内容和课本上的semWait()和semSignal()一样。</p>
+<ul>
+<li><p>在P操作中，如果当前的value &#x3D;&#x3D; 0，说明信号量被占用，则用该线程加入到信号量的阻塞队列中，否则该线程拥有信号量，value–。</p>
+</li>
+<li><p>在V操作中，value++，若阻塞队列不为空则从队列中取出一个线程放入就绪队列中。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="1-使用Thread-Sleep实现锁机制和条件变量"><a href="#1-使用Thread-Sleep实现锁机制和条件变量" class="headerlink" title="1. 使用Thread::Sleep实现锁机制和条件变量"></a>1. 使用Thread::Sleep实现锁机制和条件变量</h2><ol>
+<li><p>Lock类头文件定义</p>
+<ul>
+<li><p>bool state;</p>
+<p>锁，即互斥量，可以用来保护临界区，有两种状态：上锁和解锁，因此Lock类中需要有一个bool类型的变量state记录当前锁的状态。当state为true时表示锁已经被占用，否则表示锁是空闲的。</p>
+</li>
+<li><p>List* queue;</p>
+<p>如果锁处于解锁状态，那么当一个线程需要请求锁的时候，该线程可以得到锁，否则当锁被占用的时候，申请该锁的线程就会被阻塞，为了记录由于等待该锁而被阻塞的线程，Lock类中需要有一个List的链表存放阻塞的线程。</p>
+</li>
+<li><p>Thread* threadHoldLock;</p>
+<p>只有拥有锁的线程才能释放锁，因此类中需要有Thread变量来记录当前拥有锁的是哪一个线程。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Lock</span> &#123;<br>  <span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Lock</span>(<span class="hljs-type">char</span>* debugName);<br>    ~<span class="hljs-built_in">Lock</span>();<br>    <span class="hljs-function"><span class="hljs-type">char</span>* <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-keyword">return</span> name; &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Acquire</span><span class="hljs-params">()</span></span>; <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Release</span><span class="hljs-params">()</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isHeldByCurrentThread</span><span class="hljs-params">()</span></span>;<br>  <span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* name;	<br>    <span class="hljs-type">bool</span> state;<br>    List* queue; <br>    Thread* threadHoldLock;<br>&#125;;<br></code></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>Lock类成员函数实现</p>
+<ul>
+<li><p><code>void Lock::Acquire();</code></p>
+<p>线程尝试获取锁：首先需要关闭中断，如果锁的状态是true，表示它已经被其他线程获取了，则将该线程添加到该锁的阻塞队列上；否则修改锁的状态、记录获得该锁的线程，然后开启中断功能。</p>
+</li>
+<li><p><code>void Lock::Release();</code></p>
+<p>锁被释放：和Acquire一样，在执行操作之前同样需要先关闭中断。当锁的阻塞队列非空时，将一个线程从阻塞队列中移出，将这个线程的状态改为就绪态后，放入就绪队列中，同时修改锁的状态为false，最后开启中断。</p>
+</li>
+<li><p><code>bool Lock::isHeldByCurrentThread();</code></p>
+<p>判断该锁是否被当前线程所拥有，只需要判断currentThread和拥有该锁的线程是否相同即可。</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Lock::<span class="hljs-built_in">Lock</span>(<span class="hljs-type">char</span>* debugName) &#123;<br>    name = debugName;<br>    queue = <span class="hljs-keyword">new</span> <span class="hljs-built_in">List</span>();<br>&#125;<br>Lock::~<span class="hljs-built_in">Lock</span>() &#123;<br>    <span class="hljs-keyword">delete</span> queue;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Lock::Acquire</span><span class="hljs-params">()</span> </span>&#123;<br>    IntStatus oldLevel = interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(IntOff);<br>    <span class="hljs-keyword">if</span>(state == <span class="hljs-literal">true</span>) &#123;<br>        <span class="hljs-comment">/*block the current thread*/</span><br>        queue-&gt;<span class="hljs-built_in">Append</span>((<span class="hljs-type">void</span>*)currentThread);<br>        currentThread-&gt;<span class="hljs-built_in">Sleep</span>();<br>    &#125;<br>    state = <span class="hljs-literal">true</span>; <span class="hljs-comment">// lock the lock</span><br>    threadHoldLock = currentThread;<br>    (<span class="hljs-type">void</span>*) interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(oldLevel);<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Lock::Release</span><span class="hljs-params">()</span> </span>&#123;<br>    IntStatus oldLevel = interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(IntOff);<br>    Thread* thread;<br>    thread = (Thread*)queue-&gt;<span class="hljs-built_in">Remove</span>(); <span class="hljs-comment">// get the first item and let it be ready</span><br>    <span class="hljs-keyword">if</span>(thread != <span class="hljs-literal">NULL</span>) &#123;<br>        scheduler-&gt;<span class="hljs-built_in">ReadyToRun</span>(thread);<br>    &#125;<br>    state = <span class="hljs-literal">false</span>;<br>    threadHoldLock = <span class="hljs-literal">NULL</span>;<br>    (<span class="hljs-type">void</span>*) interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(oldLevel);<br>&#125;<br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Lock::isHeldByCurrentThread</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> currentThread == threadHoldLock;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>Condition类头文件定义</p>
+<ul>
+<li><p>List* queue;</p>
+<p>条件变量是利用线程间共享的全局变量进行同步的一种机制，当条件变量的条件不成立时，线程需要被阻塞挂起，当等待的条件成立时，线程被重新唤醒，放入就绪队列中，因此需要一个队列来存放阻塞的线程。</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Condition</span> &#123;<br>  <span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Condition</span>(<span class="hljs-type">char</span>* debugName);<br>    ~<span class="hljs-built_in">Condition</span>();<br>    <span class="hljs-function"><span class="hljs-type">char</span>* <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-keyword">return</span> (name); &#125; <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Wait</span><span class="hljs-params">(Lock *conditionLock)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Signal</span><span class="hljs-params">(Lock *conditionLock)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Broadcast</span><span class="hljs-params">(Lock *conditionLock)</span></span>;<br>  <span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* name;<br>    List* queue;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>Condition类成员函数实现</p>
+<ul>
+<li><p><code>void Condition::Wait(Lock \*conditionLock);</code></p>
+<p>该函数等待条件变量的条件成立，当条件不成立时，使用该函数让线程等待条件成立。同样需要先关闭中断，防止发生意想不到的错误，首先确保当前线程拥有该锁，否则可能造成临界资源的访问错误，将该线程添加到阻塞挂起队列中，然后释放锁，将当前线程的状态切换到阻塞态后，等待条件成立被唤醒而重新得到锁。</p>
+</li>
+<li><p><code>void Condition::Signal(Lock \*conditionLock);</code></p>
+<p>在确保当前线程拥有锁的情况下，如果因条件变量而阻塞的线程不空，则从队列中唤醒一个线程，并将该线程添加到就绪队列中。</p>
+</li>
+<li><p><code>void Condition::Broadcast(Lock \*conditionLock);</code></p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Condition::<span class="hljs-built_in">Condition</span>(<span class="hljs-type">char</span>* debugName) &#123;<br>    name = debugName;<br>    queue = <span class="hljs-keyword">new</span> <span class="hljs-built_in">List</span>();<br>&#125;<br>Condition::~<span class="hljs-built_in">Condition</span>() &#123;<br>    <span class="hljs-keyword">delete</span> queue;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Condition::Wait</span><span class="hljs-params">(Lock* conditionLock)</span> </span>&#123;<br>    IntStatus oldLevel = interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(IntOff);<br>    <span class="hljs-built_in">ASSERT</span>(conditionLock-&gt;<span class="hljs-built_in">isHeldByCurrentThread</span>()); <span class="hljs-comment">// make sure that the current thread hold the lock</span><br>    queue-&gt;<span class="hljs-built_in">Append</span>((<span class="hljs-type">void</span>*)currentThread);<br>    conditionLock-&gt;<span class="hljs-built_in">Release</span>(); <span class="hljs-comment">// release before change status</span><br>    currentThread-&gt;<span class="hljs-built_in">Sleep</span>();<br>    conditionLock-&gt;<span class="hljs-built_in">Acquire</span>(); <span class="hljs-comment">// get the lock after change</span><br>    (<span class="hljs-type">void</span>*) interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(oldLevel);<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Condition::Signal</span><span class="hljs-params">(Lock* conditionLock)</span> </span>&#123; <span class="hljs-comment">// wakeup a thread in the blocked queue and let it added to the ready queue</span><br>    IntStatus oldLevel = interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(IntOff);<br>    Thread *thread;<br>    thread = (Thread*)queue-&gt;<span class="hljs-built_in">Remove</span>();<br>    <span class="hljs-keyword">if</span>(thread != <span class="hljs-literal">NULL</span>) &#123;<br>        scheduler-&gt;<span class="hljs-built_in">ReadyToRun</span>(thread);<br>    &#125;<br>    (<span class="hljs-type">void</span>*) interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(oldLevel);<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Condition::Broadcast</span><span class="hljs-params">(Lock* conditionLock)</span> </span>&#123; <span class="hljs-comment">// wakeup all threads that are blocked</span><br>    IntStatus oldLevel = interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(IntOff);<br>    Thread *thread = (Thread*)queue-&gt;<span class="hljs-built_in">Remove</span>();<br>    <span class="hljs-keyword">while</span>(thread != <span class="hljs-literal">NULL</span>) &#123;<br>        scheduler-&gt;<span class="hljs-built_in">ReadyToRun</span>(thread);<br>        thread = (Thread*)queue-&gt;<span class="hljs-built_in">Remove</span>();<br>    &#125;<br>    (<span class="hljs-type">void</span>*) interrupt-&gt;<span class="hljs-built_in">SetLevel</span>(oldLevel);<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>测试该锁是否正确实现</p>
+<ul>
+<li><p>创建一个测试函数SynchTest，其功能为：</p>
+<p>当线程编号为偶数时，先从SynchList中移出元素，再向SynchList中添加元素；当线程编号为奇数时，先向SynchList中添加元素，再从SynchList中移出元素：</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">SyncTest</span><span class="hljs-params">(<span class="hljs-type">int</span> which)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span>(which % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">// even first remove then add</span><br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before remove\n&quot;</span>, which);<br>        <span class="hljs-type">int</span>* item = (<span class="hljs-type">int</span>*)slist-&gt;<span class="hljs-built_in">Remove</span>();<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after remove %d\n&quot;</span>, which, *item);<br>        *item = which;<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before append %d\n&quot;</span>, which, *item);<br>        slist-&gt;<span class="hljs-built_in">Append</span>((<span class="hljs-type">void</span>*)item);<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after append %d\n&quot;</span>, which, *item);<br>    &#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">// odd first add then remove</span><br>        <span class="hljs-type">int</span>* item = <span class="hljs-keyword">new</span> <span class="hljs-built_in">int</span>();<br>        *item = which;<br>        <span class="hljs-comment">/* Append */</span><br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before append %d\n&quot;</span>, which, *item);<br>        slist-&gt;<span class="hljs-built_in">Append</span>((<span class="hljs-type">void</span>*)item);<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after append %d\n&quot;</span>, which, *item);<br>        currentThread-&gt;<span class="hljs-built_in">Yield</span>();<br>        <span class="hljs-comment">/* Remove */</span><br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before remove %d\n&quot;</span>, which, *item);<br>        slist-&gt;<span class="hljs-built_in">Remove</span>();<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after remove %d\n&quot;</span>, which, *item);<br>        <span class="hljs-keyword">delete</span> item;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>测试方式：在锁定临界资源的时候，切换进程，以此来验证锁的正确性。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span></span><br><span class="hljs-function"><span class="hljs-title">SynchList::Append</span><span class="hljs-params">(<span class="hljs-type">void</span> *item)</span></span><br><span class="hljs-function"></span>&#123;<br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();		<span class="hljs-comment">// enforce mutual exclusive access to the list </span><br>    list-&gt;<span class="hljs-built_in">Append</span>(item);<br>    currentThread-&gt;<span class="hljs-built_in">Yield</span>();<br>    <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Back from scheduler\n&quot;</span>);<br>    listEmpty-&gt;<span class="hljs-built_in">Signal</span>(lock);	<span class="hljs-comment">// wake up a waiter, if any</span><br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>编译运行：编译成功后，在终端输入.&#x2F;nachos -q 4 -t 4，-q 4表示进入第四个test函数（即SynchTest），-t 4表示使用4个线程。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925155300291.png" srcset="/img/loading.gif" lazyload alt="image-20230925155300291"></p>
+<ul>
+<li><p>分析：</p>
+<p><strong>锁的有效性</strong>：从上图中可以看到，在“Thread 1 before append 1”到“Thread 1 after append 1”的过程中，线程2、线程3在锁的作用下均被阻塞，最后回到线程1执行，输出“Back from scheduler”，说明了锁的有效性。</p>
+<p><strong>条件变量</strong>：在线程1结束“Thread 1 append 1”后，成功唤醒线程0删除“Thread 0 after remove 1”（线程0最先执行，因为一开始链表无元素，而线程0想执行删除操作，故被阻塞）。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-使用Semaphore实现锁机制和条件变量"><a href="#2-使用Semaphore实现锁机制和条件变量" class="headerlink" title="2. 使用Semaphore实现锁机制和条件变量"></a>2. 使用Semaphore实现锁机制和条件变量</h2><p>使用信号量Semaphore实现锁机制和条件变量与使用Thread::Sleep实现的思路大致相同，只是需要把Sleep操作和ReadyToRun操作换为信号量的P和V操作。</p>
+<ol>
+<li><p>Lock类头文件定义</p>
+<p>Lock类中需要的锁状态可以用信号量中的value来代替，阻塞队列可以用信号量中的queue代替，需要添加的是<strong>拥有锁的线程和信号量sema</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Lock</span> &#123;<br>  <span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Lock</span>(<span class="hljs-type">char</span>* debugName);  		<span class="hljs-comment">// initialize lock to be FREE</span><br>    ~<span class="hljs-built_in">Lock</span>();				<span class="hljs-comment">// deallocate lock</span><br>    <span class="hljs-function"><span class="hljs-type">char</span>* <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-keyword">return</span> name; &#125;	<span class="hljs-comment">// debugging assist</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Acquire</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// these are the only operations on a lock</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Release</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// they are both *atomic*</span><br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isHeldByCurrentThread</span><span class="hljs-params">()</span></span>;<br>  <span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* name;	<br>    Semaphore* Sema; <span class="hljs-comment">// use the semaphore to realize the lock</span><br>    Thread* threadHoldLock; <span class="hljs-comment">// the thread that hold the lock, only the thread can release the lock</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>Lock类成员函数实现</p>
+<ul>
+<li><p><code>void Lock::Acquire();</code></p>
+<p>由于Semaphore的P操作是原子操作，所以不必考虑中断的影响，线程使用Acquire申请锁时，调用Sema-&gt;P()操作，如果value &gt; 0，说明锁没有被占用，则修改threadHoldLock的值，将其改为申请的进程，否则将该进程添加到阻塞队列并Sleep。</p>
+</li>
+<li><p><code>void Lock::Release();</code></p>
+<p>Semaphore的V操作也是原子操作，先将threadHoldLock的值置为NULL，然后调用Sema-&gt;V()操作即可。</p>
+</li>
+<li><p><code>bool Lock::isHeldByCurrentThread();</code></p>
+<p>判断该锁是否被当前线程所拥有，只需要判断currentThread和拥有该锁的线程是否相同即可。</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Lock::<span class="hljs-built_in">Lock</span>(<span class="hljs-type">char</span>* debugName) &#123;<br>    name = debugName;<br>    Sema = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Semaphore</span>(debugName, <span class="hljs-number">1</span>);<br>&#125;<br>Lock::~<span class="hljs-built_in">Lock</span>() &#123;<br>    <span class="hljs-keyword">delete</span> Sema;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Lock::Acquire</span><span class="hljs-params">()</span> </span>&#123;<br>    Sema-&gt;<span class="hljs-built_in">P</span>();<br>    threadHoldLock = currentThread;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Lock::Release</span><span class="hljs-params">()</span> </span>&#123;<br>    threadHoldLock = <span class="hljs-literal">NULL</span>;<br>    Sema-&gt;<span class="hljs-built_in">V</span>();<br>&#125;<br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Lock::isHeldByCurrentThread</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-comment">//  return true if the current thread hold the lock</span><br>    <span class="hljs-keyword">return</span> currentThread == threadHoldLock;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>Condition类头文件定义</p>
+<ul>
+<li><p><code>List* queue;</code></p>
+<p>条件变量是利用线程间共享的全局变量进行同步的一种机制，当条件变量的条件不成立时，线程需要被阻塞挂起，当等待的条件成立时，线程被重新唤醒，放入就绪队列中，因此需要一个队列来存放阻塞的线程。</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Condition</span> &#123;<br>  <span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Condition</span>(<span class="hljs-type">char</span>* debugName);<br>    ~<span class="hljs-built_in">Condition</span>();<br>    <span class="hljs-function"><span class="hljs-type">char</span>* <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-keyword">return</span> (name); &#125; <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Wait</span><span class="hljs-params">(Lock *conditionLock)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Signal</span><span class="hljs-params">(Lock *conditionLock)</span></span>;   <span class="hljs-comment">// conditionLock must be held by</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Broadcast</span><span class="hljs-params">(Lock *conditionLock)</span></span>;<span class="hljs-comment">// the currentThread for all of </span><br>  <span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* name;<br>    Semaphore* Sema;<br>    <span class="hljs-type">int</span> blockNum;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>Condition类成员函数实现</p>
+<ul>
+<li><p><code>void Condition::Wait(Lock *conditionLock);</code></p>
+<p>首先释放锁，调用Sema-&gt;P()函数将进程设置为阻塞态并放入阻塞队列中，同时阻塞线程数加1，最后等待条件成立，重新被唤醒。</p>
+</li>
+<li><p><code>void Condition::Signal(Lock *conditionLock);</code></p>
+<p>如果当前被阻塞的线程数大于0，则调用Sema-&gt;V()释放一个线程，并将其加入到就绪队列中去。</p>
+</li>
+<li><p>void Condition::Broadcast(Lock *conditionLock);</p>
+<p>当阻塞线程数大于0时，重复调用Sema-&gt;V()，直到所有的阻塞线程都被重载到就绪队列中去。</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Condition::<span class="hljs-built_in">Condition</span>(<span class="hljs-type">char</span>* debugName) &#123;<br>    name = debugName;<br>    Sema = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Semaphore</span>(debugName, <span class="hljs-number">0</span>);<br>    blockNum = <span class="hljs-number">0</span>;<br>&#125;<br>Condition::~<span class="hljs-built_in">Condition</span>() &#123;<br>    <span class="hljs-keyword">delete</span> Sema;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Condition::Wait</span><span class="hljs-params">(Lock* conditionLock)</span> </span>&#123;<br>    conditionLock-&gt;<span class="hljs-built_in">Release</span>();<br>    Sema-&gt;<span class="hljs-built_in">P</span>();<br>    blockNum++;<br>    conditionLock-&gt;<span class="hljs-built_in">Acquire</span>();<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Condition::Signal</span><span class="hljs-params">(Lock* conditionLock)</span> </span>&#123; <span class="hljs-comment">// wakeup a thread in the blocked queue and let it added to the ready queue</span><br>    <span class="hljs-keyword">if</span>(blockNum &gt; <span class="hljs-number">0</span>) &#123;<br>        Sema-&gt;<span class="hljs-built_in">V</span>();<br>        blockNum--;<br>    &#125;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Condition::Broadcast</span><span class="hljs-params">(Lock* conditionLock)</span> </span>&#123; <span class="hljs-comment">// wakeup all threads that are blocked</span><br>    <span class="hljs-keyword">while</span>(blocksum) &#123;<br>        Sema-&gt;<span class="hljs-built_in">V</span>();<br>        blockNum--;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="3-使用锁机制和条件变量将实验1里实现的双向链表修改成线程安全的"><a href="#3-使用锁机制和条件变量将实验1里实现的双向链表修改成线程安全的" class="headerlink" title="3. 使用锁机制和条件变量将实验1里实现的双向链表修改成线程安全的"></a>3. 使用锁机制和条件变量将实验1里实现的双向链表修改成线程安全的</h2><ol>
+<li><p>测试以“sleep+中断禁止与启用”实现的条件变量是否正确</p>
+<ul>
+<li>测试代码：奇数编号线程先添加后删除，偶数编号线程先删除后添加。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">DLListTest</span><span class="hljs-params">(<span class="hljs-type">int</span> which)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span>(which % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>) &#123; <span class="hljs-comment">// even first remove then add</span><br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before remove\n&quot;</span>, which);<br>        dllist-&gt;<span class="hljs-built_in">Remove</span>(<span class="hljs-literal">NULL</span>);<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after remove\n&quot;</span>, which);<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before append\n&quot;</span>, which);<br>        dllist-&gt;<span class="hljs-built_in">Append</span>(<span class="hljs-literal">NULL</span>);<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after append\n&quot;</span>, which);<br>    &#125; <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">// odd first add then remove</span><br>        <span class="hljs-comment">/* Append */</span><br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before append\n&quot;</span>, which);<br>        dllist-&gt;<span class="hljs-built_in">Append</span>(<span class="hljs-literal">NULL</span>);<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after append\n&quot;</span>, which);<br>        currentThread-&gt;<span class="hljs-built_in">Yield</span>();<br>        <span class="hljs-comment">/* Remove */</span><br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d before remove\n&quot;</span>, which);<br>        dllist-&gt;<span class="hljs-built_in">Remove</span>(<span class="hljs-literal">NULL</span>);<br>        <span class="hljs-built_in">fprintf</span>(stdout, <span class="hljs-string">&quot;Thread %d after remove\n&quot;</span>, which);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925155846049.png" srcset="/img/loading.gif" lazyload alt="image-20230925155846049"></p>
+<p>一开始线程0进入，先删除，但是此时链表中一个元素也没有，于是发生了段错误。</p>
+<ul>
+<li>加入条件变量：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">DLList::Append</span><span class="hljs-params">(<span class="hljs-type">void</span> *item)</span> </span>&#123;<br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();<br>    DLLElement *newnode = <span class="hljs-keyword">new</span> <span class="hljs-built_in">DLLElement</span>(item, <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">IsEmpty</span>()) &#123;<br>        first = newnode;<br>        last = newnode;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        last-&gt;next = newnode;<br>        newnode-&gt;prev = last;<br>        last = newnode;<br>    &#125;<br>    dllistEmpty-&gt;<span class="hljs-built_in">Signal</span>(lock);<br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> *<span class="hljs-title">DLList::Remove</span><span class="hljs-params">(<span class="hljs-type">int</span> *keyPtr)</span> </span>&#123; <span class="hljs-comment">// remove from head</span><br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();<br>    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">IsEmpty</span>()) dllistEmpty-&gt;<span class="hljs-built_in">Wait</span>(lock); <span class="hljs-comment">// condition</span><br>    DLLElement *element = first;<br>    <span class="hljs-type">void</span> *thing;<br>    thing = first-&gt;item;<br>    <span class="hljs-keyword">if</span>(first == last &amp;&amp; first-&gt;next == <span class="hljs-literal">NULL</span>) &#123; <span class="hljs-comment">// only one</span><br>        first = <span class="hljs-literal">NULL</span>;<br>        last = <span class="hljs-literal">NULL</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        first = element-&gt;next;<br>    &#125;<br>    <span class="hljs-keyword">if</span>(keyPtr != <span class="hljs-literal">NULL</span>) *keyPtr = element-&gt;key;<br>    <span class="hljs-keyword">delete</span> element;<br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>    <span class="hljs-keyword">return</span> thing;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>再次测试：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925155935016.png" srcset="/img/loading.gif" lazyload alt="image-20230925155935016"></p>
+<p>可以看到，线程0进入，链表中没有元素，于是被条件变量阻塞，等待条件成立，之后线程1向链表中加入元素，唤醒线程0，线程0删除元素，此后程序正确执行。</p>
+</li>
+<li><p>测试以“信号量”实现的锁机制和条件变量是否正确</p>
+<p>测试方法和前面测试“Sleep”实现的相同。下面直接给出测试结果。</p>
+</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160008697.png" srcset="/img/loading.gif" lazyload alt="image-20230925160008697"></p>
+<p>​	可以看到，程序同样正确执行。</p>
+<p>​	至此，锁和条件变量的正确性测试完毕，且用锁和条件变量实现了双向链表的线程安全性。</p>
+<h2 id="4-实现一个线程安全的表结构"><a href="#4-实现一个线程安全的表结构" class="headerlink" title="4. 实现一个线程安全的表结构"></a>4. 实现一个线程安全的表结构</h2><ol>
+<li><p>Table类头文件定义</p>
+<ul>
+<li>void** table; 定义表头指针，线性表的主体是一个指针数组。</li>
+<li>int tsize; 记录表的大小。</li>
+<li>int cnt; 记录表中的元素个数。</li>
+<li>Lock* lock; 锁。</li>
+<li>Condition* tableEmpty; 用来阻塞表为空的情况。</li>
+</ul>
+<p>这里锁和条件变量的实现使用的是第二部分信号量的方法。</p>
+<p>table.h</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> __TABLE_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> __TABLE_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;synch.h&quot;</span></span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Table</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Table</span>(<span class="hljs-type">int</span> size);<br>    ~<span class="hljs-built_in">Table</span>();<br><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">Alloc</span><span class="hljs-params">(<span class="hljs-type">void</span> *object)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Release</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> *<span class="hljs-title">Get</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Print</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// print all item in tableBase</span><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getSize</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// get the current table size</span><br>    <span class="hljs-type">int</span> cnt;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> TableSize;<br>    <span class="hljs-type">void</span>** tableBase;<br>    Lock* lock;<br>    Condition* tableEmpty;<br>&#125;;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">// __TABLE_H</span></span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>Table类中主要的成员函数</p>
+<ul>
+<li><p>在Table类中最主要的两个函数是Alloc和Release函数，它们的作用分别是在表中添加元素和删除元素。</p>
+</li>
+<li><p>int Alloc(void *object);&#x20;</p>
+<p>操作前先请求锁，然后遍历线性表直到找到线性表中第一个空位的索引index，若index超过了表界限则返回-1，否则将object添加到此位置。添加完毕后Signal，唤醒由于线性表中index位置为空而被阻塞的线程，函数的返回值为插入位置的索引index。</p>
+</li>
+<li><p>void Release(int index);</p>
+<p>对于Release函数，在请求锁后首先需要判断线性表当前位置是否为空，如果为空，则线程被tableEmpty阻塞，直到另一个线程向线性表中该位置添加元素后重新被唤醒。</p>
+</li>
+</ul>
+<p>table.cc</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;table.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;synch.h&quot;</span></span><br><br>Table::<span class="hljs-built_in">Table</span>(<span class="hljs-type">int</span> size) &#123;<br>    TableSize = size;<br>    cnt = <span class="hljs-number">0</span>; <span class="hljs-comment">// initailize</span><br>    lock = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Lock</span>(<span class="hljs-string">&quot;table lock&quot;</span>);<br>    tableEmpty = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Condition</span>(<span class="hljs-string">&quot;tableEmpty condition&quot;</span>);<br>    tableBase = <span class="hljs-keyword">new</span> <span class="hljs-type">void</span>*[size];<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; size; i++) &#123;<br>        tableBase[i] = <span class="hljs-literal">NULL</span>;<br>    &#125;<br>&#125;<br><br>Table::~<span class="hljs-built_in">Table</span>() &#123;<br>    TableSize = <span class="hljs-number">0</span>;<br>    cnt = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">delete</span> tableBase;<br>    <span class="hljs-keyword">delete</span> lock;<br>    <span class="hljs-keyword">delete</span> tableEmpty;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">Table::Alloc</span><span class="hljs-params">(<span class="hljs-type">void</span> *object)</span> </span>&#123; <span class="hljs-comment">// add object to tableBase</span><br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();<br>    <span class="hljs-type">int</span> ret;<br>    <span class="hljs-type">int</span> index = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span>(tableBase[index] != <span class="hljs-literal">NULL</span> &amp;&amp; index &lt; TableSize) &#123;<br>        index++;<br>    &#125;<br>    <span class="hljs-keyword">if</span>(index &gt;= TableSize) &#123;<br>        ret = <span class="hljs-number">-1</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        tableBase[index] = object;<br>        ret = index;<br>    &#125;<br>    <span class="hljs-built_in">ASSERT</span>(ret != <span class="hljs-number">-1</span>);<br>    cnt += <span class="hljs-number">1</span>;<br>    tableEmpty-&gt;<span class="hljs-built_in">Signal</span>(lock);<br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>    <span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Table::Release</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span> </span>&#123; <span class="hljs-comment">// release item from tableBase</span><br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();<br>    <span class="hljs-keyword">while</span>(tableBase[index] == <span class="hljs-literal">NULL</span>) tableEmpty-&gt;<span class="hljs-built_in">Wait</span>(lock);<br>    tableBase[index] = <span class="hljs-literal">NULL</span>;<br>    cnt -= <span class="hljs-number">1</span>;<br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> *<span class="hljs-title">Table::Get</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span> </span>&#123; <span class="hljs-comment">// return item on tableBase[index]</span><br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();<br>    <span class="hljs-type">void</span> *ret;<br>    <span class="hljs-keyword">if</span>(index &gt;= TableSize) &#123;<br>        ret = <span class="hljs-literal">NULL</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        ret = tableBase[index];<br>    &#125;<br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>    <span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">Table::getSize</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> TableSize;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Table::Print</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; TableSize; i++) &#123;<br>        <span class="hljs-keyword">if</span>(tableBase[i] == <span class="hljs-literal">NULL</span>) <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;tableBase[%d] : 0\n&quot;</span>, i);<br>        <span class="hljs-keyword">else</span> <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;tableBase[%d] : %d\n&quot;</span>, i, (<span class="hljs-type">int</span>)tableBase[i]);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>测试代码</p>
+<p>为了检测表的安全性，让Thread0先对表进行删除操作，Thread1进行增加操作，测试前使用ASSERT函数确保操作数oprnum不大于表的大小。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">TableTest</span><span class="hljs-params">(<span class="hljs-type">int</span> which)</span> </span>&#123;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; threadnum; i++) testData[i] = i;<br>    <span class="hljs-built_in">ASSERT</span>(oprnum &lt;= table-&gt;<span class="hljs-built_in">getSize</span>());<br>    <span class="hljs-type">int</span> *object = <span class="hljs-keyword">new</span> <span class="hljs-built_in">int</span>();<br>    <span class="hljs-type">int</span> index = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span>(which % <span class="hljs-number">2</span>) &#123;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; oprnum; i++) &#123;<br>            *object = testData[which + i];<br>            index = table-&gt;<span class="hljs-built_in">Alloc</span>((<span class="hljs-type">void</span>*)object);<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Thread %d : Added object to table[%d]\n&quot;</span>, which, index);<br>        &#125;<br>        table-&gt;<span class="hljs-built_in">Print</span>();<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Now the number of objects is %d\n&quot;</span>, table-&gt;cnt);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; oprnum; i++) &#123;<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Thread %d ask for delete object\n&quot;</span>, which);<br>            table-&gt;<span class="hljs-built_in">Release</span>(index);<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Thread %d : delete object from table[%d]\n&quot;</span>, which, index);<br>            index += <span class="hljs-number">1</span>;<br>        &#125;<br>        table-&gt;<span class="hljs-built_in">Print</span>();<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Now the number of objects is %d\n&quot;</span>, table-&gt;cnt);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>测试结果</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160239748.png" srcset="/img/loading.gif" lazyload alt="image-20230925160239748"></p>
+<p>​	从图中可以看到，实现了线程安全的表结构。</p>
+</li>
+</ol>
+<h2 id="5-实现一个大小受限的缓冲区"><a href="#5-实现一个大小受限的缓冲区" class="headerlink" title="5. 实现一个大小受限的缓冲区"></a>5. 实现一个大小受限的缓冲区</h2><ol>
+<li><p>BoundedBuffer类头文件定义</p>
+<p>与Table不同，BoundedBuffer需要两个索引head和tail，head存放的是已经使用了的Buffer中的第一个位置的下标，tail存放的是已经使用的Buffer中的最后一个位置的下标。buffer是缓冲区。maxSize为buffer最多能存放的大小，usedSize为当前已经使用的buffer的大小。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">BoundedBuffer</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">BoundedBuffer</span>(<span class="hljs-type">int</span> maxSize);<br>    ~<span class="hljs-built_in">BoundedBuffer</span>();<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Read</span><span class="hljs-params">(<span class="hljs-type">void</span> *data, <span class="hljs-type">int</span> size)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Write</span><span class="hljs-params">(<span class="hljs-type">void</span> *data, <span class="hljs-type">int</span> size)</span></span>;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> maxSize; <span class="hljs-comment">// size of buffer</span><br>    <span class="hljs-type">int</span> head; <span class="hljs-comment">// pointer to the first place of buffer used</span><br>    <span class="hljs-type">int</span> tail; <span class="hljs-comment">// pointer to the last place of buffer used</span><br>    <span class="hljs-type">int</span> usedSize;<br>    uchar *buffer;<br><span class="hljs-keyword">private</span>:<br>    Lock *lock;<br>    Condition *full; <span class="hljs-comment">// ensure buffer not full</span><br>    Condition *empty; <span class="hljs-comment">// ensure buffer not empty</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>BoundedBuffer类成员函数</p>
+<ul>
+<li><p>void BoundedBuffer::Write(void* data, int size);</p>
+<p>实现了向缓冲区中写入数据的功能。首先确保要写入的数据大小不大于buffer的最大容量。然后获取锁，保证操作的原子性，当要写的数据量超过了剩余容量，则将这个线程阻塞，使用条件变量，等待buffer中的数据被其他线程读取。若不超过剩余容量，则将size个数据依次写入buffer中：从tail &#x3D; 0开始，依次往后写，这里将buffer看出是一个循环队列，用取模的运算，当到达buffer的末尾时，就再从头写。写完后让usedSize增加size大小，然后Signal()，唤醒由于缓冲区中元素不够而阻塞的线程，最后释放锁。</p>
+</li>
+<li><p>void BoundedBuffer::Read(void* data, int size);</p>
+<p>实现了从缓冲区中读取数据的功能。首先获取锁，保证操作的原子性。当要从缓冲区中读取的数据个数超过了缓冲区中已使用的大小时，线程被阻塞，使用条件变量，等待其他线程将数据写入缓冲区。若不超过已用大小，则从head开始，将从head开始的后size个数据都放入传入的data变量中，之后再将head增加size个，之后再读取位置就变了，然后将已使用缓冲区的大小usedSize减少size个，最后Signal()，唤醒由于缓冲区中元素太多而被阻塞的进程，再释放锁。</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs cpp">BoundedBuffer::<span class="hljs-built_in">BoundedBuffer</span>(<span class="hljs-type">int</span> maxSize) &#123;<br>    <span class="hljs-keyword">this</span>-&gt;maxSize = maxSize;                                                                                               <br>    lock = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Lock</span>(<span class="hljs-string">&quot;Buffer lock&quot;</span>);<br>    full = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Condition</span>(<span class="hljs-string">&quot;Buffer not full cond&quot;</span>);<br>    empty = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Condition</span>(<span class="hljs-string">&quot;Buffer not empty cond&quot;</span>);<br>    usedSize = <span class="hljs-number">0</span>;<br>    head = <span class="hljs-number">0</span>;<br>    tail = <span class="hljs-number">0</span>;<br>    buffer = <span class="hljs-keyword">new</span> uchar[maxSize];<br>&#125;<br>BoundedBuffer::~<span class="hljs-built_in">BoundedBuffer</span>() &#123;<br>    <span class="hljs-keyword">delete</span> lock;<br>    <span class="hljs-keyword">delete</span> full;<br>    <span class="hljs-keyword">delete</span> empty;<br>    <span class="hljs-keyword">delete</span> buffer;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BoundedBuffer::Write</span><span class="hljs-params">(<span class="hljs-type">void</span>* data, <span class="hljs-type">int</span> size)</span> </span>&#123; <span class="hljs-comment">// write data to buffer and the data size is size</span><br>    <span class="hljs-built_in">ASSERT</span>(size &lt;= maxSize);<br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();<br>    <span class="hljs-keyword">while</span>(maxSize - usedSize &lt; size) &#123; <span class="hljs-comment">// remain size not enough</span><br>        <span class="hljs-built_in">DEBUG</span>(<span class="hljs-string">&#x27;t&#x27;</span>, <span class="hljs-string">&quot;\tRemain size is not enough.\n&quot;</span>);<br>        full-&gt;<span class="hljs-built_in">Wait</span>(lock);<br>    &#125;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; size; i++) &#123;<br>        *((uchar*)buffer + (tail + i) % maxSize) = *((uchar*)data + i);<br>    &#125;<br>    tail = (tail + size) % maxSize;<br>    usedSize += size;<br>    <span class="hljs-built_in">DEBUG</span>(<span class="hljs-string">&#x27;b&#x27;</span>, <span class="hljs-string">&quot;\tFinish Write Buffer. Buffer size : %d\n&quot;</span>, usedSize);<br>    empty-&gt;<span class="hljs-built_in">Signal</span>(lock);<br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BoundedBuffer::Read</span><span class="hljs-params">(<span class="hljs-type">void</span>* data, <span class="hljs-type">int</span> size)</span> </span>&#123;<br>    lock-&gt;<span class="hljs-built_in">Acquire</span>();<br>    <span class="hljs-keyword">while</span>(usedSize - size &lt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-built_in">DEBUG</span>(<span class="hljs-string">&#x27;t&#x27;</span>, <span class="hljs-string">&quot;\tNot enough to read\n&quot;</span>);<br>        empty-&gt;<span class="hljs-built_in">Wait</span>(lock);<br>    &#125;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; size; i++) &#123;<br>        *((uchar*)data + i) = *((uchar*)buffer + (head + i) % maxSize);<br>    &#125;<br>    head = (head + size) % maxSize;<br>    usedSize -= size;<br>    <span class="hljs-built_in">DEBUG</span>(<span class="hljs-string">&#x27;b&#x27;</span>, <span class="hljs-string">&quot;\tFinish Read buffer. Buffer size : %d\n&quot;</span>, usedSize);<br>    full-&gt;<span class="hljs-built_in">Signal</span>(lock);<br>    lock-&gt;<span class="hljs-built_in">Release</span>();<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BoundedBuffer::Print</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\t&quot;</span>);<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = head; i != tail; i = (i + <span class="hljs-number">1</span>) % maxSize) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%c&quot;</span>, buffer[i]);<br>    &#125;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>测试函数</p>
+<p>测试逻辑与Table测试逻辑相似，编号为偶数的线程从缓冲区中读取，而编号为奇数的线程向缓冲区中写入，这样由于先fork线程0，会构成一个先读取后写入的顺序，以此来检验buffer的安全性。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BoundedBufferTest</span><span class="hljs-params">(<span class="hljs-type">int</span> which)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span>(which % <span class="hljs-number">2</span>) &#123;<br>        <span class="hljs-type">char</span> *str = <span class="hljs-string">&quot;This is a test\n&quot;</span>;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;The length of str is %d\n&quot;</span>, <span class="hljs-built_in">strlen</span>(str));<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) &#123;<br>            <span class="hljs-type">char</span> temp = str[i];<br>            bb-&gt;<span class="hljs-built_in">Write</span>(&amp;temp, <span class="hljs-number">1</span>);<br>            bb-&gt;<span class="hljs-built_in">Print</span>();<br>            <span class="hljs-keyword">if</span>(temp == <span class="hljs-string">&#x27;\n&#x27;</span>) &#123;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) &#123;<br>            <span class="hljs-type">char</span> *temp = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-number">3</span>];<br>            temp[<span class="hljs-number">2</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;<br>            bb-&gt;<span class="hljs-built_in">Read</span>(temp, <span class="hljs-number">2</span>);<br>            bb-&gt;<span class="hljs-built_in">Print</span>();<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;temp : %s\n&quot;</span>, temp);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>测试结果</p>
+<ul>
+<li>常规测试</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160515936.png" srcset="/img/loading.gif" lazyload alt="image-20230925160515936"></p>
+</li>
+</ol>
+<ul>
+<li><p>手动切换线程</p>
+<p>加了一行currentThread-&gt;Yield()，Thread1会放弃CPU，Thread0会接管。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BoundedBufferTest</span><span class="hljs-params">(<span class="hljs-type">int</span> which)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span>(which % <span class="hljs-number">2</span>) &#123;<br>        <span class="hljs-type">char</span> *str = <span class="hljs-string">&quot;This is a test\n&quot;</span>;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;The length of str is %d\n&quot;</span>, <span class="hljs-built_in">strlen</span>(str));<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) &#123;<br>            <span class="hljs-type">char</span> temp = str[i];<br>            bb-&gt;<span class="hljs-built_in">Write</span>(&amp;temp, <span class="hljs-number">1</span>);<br>            bb-&gt;<span class="hljs-built_in">Print</span>();<br>            <span class="hljs-built_in">DEBUG</span>(<span class="hljs-string">&#x27;b&#x27;</span>, <span class="hljs-string">&quot;Thread %d Yield\n&quot;</span>, which);<br>            currentThread-&gt;<span class="hljs-built_in">Yield</span>();<br>            <span class="hljs-keyword">if</span>(temp == <span class="hljs-string">&#x27;\n&#x27;</span>) &#123;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">100</span>; i++) &#123;<br>            <span class="hljs-type">char</span> *temp = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-number">3</span>];<br>            temp[<span class="hljs-number">2</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;<br>            bb-&gt;<span class="hljs-built_in">Read</span>(temp, <span class="hljs-number">2</span>);<br>            bb-&gt;<span class="hljs-built_in">Print</span>();<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;temp : %s\n&quot;</span>, temp);<br>            <span class="hljs-keyword">if</span>(bb-&gt;<span class="hljs-built_in">getUsed</span>() == <span class="hljs-number">0</span>) <span class="hljs-keyword">break</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160547376.png" srcset="/img/loading.gif" lazyload alt="image-20230925160547376"></p>
+</li>
+<li><p>buffer full</p>
+<p>测试这一部分，我只将buffer的maxSize改为了10。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/image-20230925160606254.png" srcset="/img/loading.gif" lazyload alt="image-20230925160606254"></p>
+</li>
+</ul>
+<h1 id="四、遇到的问题"><a href="#四、遇到的问题" class="headerlink" title="四、遇到的问题"></a>四、遇到的问题</h1><ul>
+<li>在构造线性表时，一开始未定义索引index而是想直接删除表中最后一个元素，使用了tableBase[cnt-1]。但是cnt只是记录表中元素个数的变量，由于表中的元素可能不连续，所以有可能出现阻塞，直到恰好该位置被添加元素。但是一旦该位置一直为空，就有可能出现饥饿。</li>
+<li>在做最后一个部分实现线程安全的缓冲区时，用一般的方法不太能很好看出线程的切换过程，于是我使用了DEBUG的方法来看线程是如何切换的，可以看到切换的流程可以很清晰的看出来。</li>
+<li>考虑多个线程同时访问同一个BoundedBuffer的情况，可能出现线程A写入，线程B和线程C都去读取，我们只能让一个线程去读取。所以在实现缓冲区的时候，不仅仅有同步的问题，互斥的问题也同样存在。</li>
+</ul>
+<h1 id="五、实验总结"><a href="#五、实验总结" class="headerlink" title="五、实验总结"></a>五、实验总结</h1><ul>
+<li>在本次操作系统实验中，我学习了两种实现锁机制和条件变量的方式：Sleep加中断和信号量。在使用Sleep加中断的方式时，我使用了一个标志位来表示锁的状态，当锁被占用时，其他线程需要等待直到锁被释放。在释放锁的时候，我使用了中断的方式，以保证操作的原子性。</li>
+<li>另一种方式是使用信号量。信号量是一种计数器，用于控制多个线程对共享资源的访问。在本次实验中，我使用了信号量来实现锁机制和条件变量。当信号量的值大于0时，表示锁是可用的；当信号量的值为0时，表示锁被占用。</li>
+<li>在实际的事件中，实现锁的方式的多样的，可以利用信号量去实现一个锁的机制，也可以简单的使用一个状态去记录所得状态。</li>
+<li>在这个过程之中，都需要保证操作的原子性，也就是说在改变锁的状态时，不能被打断，所以需要使用关闭中断的方式去保证操作的原子性。这样做也有一定的弊端，关闭中断会使得系统变成一个无法被抢占的状态，可以在某些情况下导致死锁。</li>
+<li>除了实现锁机制和条件变量，我还将双向链表改成了线程安全的形式，并且实现了一个线程安全的表结构。在这个过程中，我使用了锁机制和条件变量来保证多个线程同时访问数据结构时不会出现数据竞争和其他问题。最后，我还实现了一个大小受限的缓冲区，通过使用锁机制和条件变量来保证多个线程同时访问缓冲区时不会出现问题。</li>
+<li>总的来说，本次操作系统实验让我更加深入地了解了多线程编程和操作系统底层原理。通过实践，我掌握了多种实现锁机制和条件变量的方式，并且学会了如何将数据结构改造成线程安全的形式。这些经验将对我的未来学习和工作产生积极的影响。</li>
+</ul>
+<h1 id="六、附"><a href="#六、附" class="headerlink" title="六、附"></a>六、附</h1><p>所有代码均已上传至github</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/i-rong/rongrong/tree/main/nachos">实验代码</a></p>
+
+                
+              </div>
+            
+            <div style="text-align: center; margin: auto;"><!--自己添加的打赏模块：开始-->
+              
+            </div> <!--自己添加的打赏模块：结束-->
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="category-chain-item">操作系统</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="print-no-link">#操作系统</a>
+      
+        <a href="/tags/nachos/" class="print-no-link">#nachos</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>nachos02</div>
+      <div>https://lumen3ever.top/2023/09/25/nachos02/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>YaoHuaiyu</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年9月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/09/25/%E5%8D%8E%E4%B8%BA%E5%AE%9E%E4%B9%A0%E5%86%85%E5%AE%B9%E6%95%B4%E7%90%86/" title="华为实习内容整理">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">华为实习内容整理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/09/25/nachos01/" title="nachos01">
+                        <span class="hidden-mobile">nachos01</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"i-rong/i-rong.github.io","repo-id":"R_kgDOKWfs4w","category":"Q&A","category-id":"DIC_kwDOKWfs484Ca0Ey","theme-light":"light","theme-dark":"dark","mapping":"pathname","reactions-enabled":1,"emit-metadata":0,"input-position":"top","lang":"zh-CN"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      皖ICP备2023018648号
+    </a>
+  </span>
+  
+    
+      <span class="beian-police">
+        
+        <span class="beian-police">Copyright Lumen3ever 版权所有</span>
+      </span>
+    
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

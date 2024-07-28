@@ -16,27 +16,25 @@
   <meta name="author" content="YaoHuaiyu">
   <meta name="keywords" content="">
   
-    <meta name="description" content="空间配置器——allocator空间配置器的标准接口根据 STL 的规范，以下是 allocator 的必要接口： 12345678910111213141516171819202122232425262728293031allocator::value_typeallocator::pointerallocator::const_pointerallocator::referencealloca">
+    <meta name="description" content="DataLab_Manipulating Bits前言记录 CSAPP 第一个实验遇到的问题和一些思考。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="STL_allocator">
-<meta property="og:url" content="https://lumen3ever.top/2023/12/06/STL_allocator/index.html">
+<meta property="og:title" content="csapp_datalab">
+<meta property="og:url" content="https://lumen3ever.top/2023/12/20/csapp_datalab/index.html">
 <meta property="og:site_name" content="YHY的博客">
-<meta property="og:description" content="空间配置器——allocator空间配置器的标准接口根据 STL 的规范，以下是 allocator 的必要接口： 12345678910111213141516171819202122232425262728293031allocator::value_typeallocator::pointerallocator::const_pointerallocator::referencealloca">
+<meta property="og:description" content="DataLab_Manipulating Bits前言记录 CSAPP 第一个实验遇到的问题和一些思考。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312131516679.png">
-<meta property="article:published_time" content="2023-12-06T15:02:58.000Z">
-<meta property="article:modified_time" content="2023-12-13T07:16:47.987Z">
+<meta property="article:published_time" content="2023-12-20T03:55:13.000Z">
+<meta property="article:modified_time" content="2023-12-28T12:12:47.785Z">
 <meta property="article:author" content="YaoHuaiyu">
-<meta property="article:tag" content="STL">
-<meta property="article:tag" content="C++基础知识">
+<meta property="article:tag" content="CSAPP">
+<meta property="article:tag" content="网红课">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202312131516679.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>STL_allocator - YHY的博客</title>
+  <title>csapp_datalab - YHY的博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -229,7 +227,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="STL_allocator"></span>
+            <span id="subtitle" data-typed-text="csapp_datalab"></span>
           
         </div>
 
@@ -240,8 +238,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-12-06 23:02" pubdate>
-          2023年12月6日 晚上
+        <time datetime="2023-12-20 11:55" pubdate>
+          2023年12月20日 中午
         </time>
       </span>
     
@@ -252,7 +250,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.6k 字
+          49 字
         
       </span>
     
@@ -263,7 +261,7 @@
         
         
         
-          14 分钟
+          1 分钟
         
       </span>
     
@@ -300,16 +298,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">STL_allocator</h1>
+            <h1 id="seo-header">csapp_datalab</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="空间配置器——allocator"><a href="#空间配置器——allocator" class="headerlink" title="空间配置器——allocator"></a>空间配置器——allocator</h1><h2 id="空间配置器的标准接口"><a href="#空间配置器的标准接口" class="headerlink" title="空间配置器的标准接口"></a>空间配置器的标准接口</h2><p>根据 STL 的规范，以下是 allocator 的必要接口：</p>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs txt">allocator::value_type<br>allocator::pointer<br>allocator::const_pointer<br>allocator::reference<br>allocator::const_reference<br>allocator::size_type<br>allocator::difference_type<br>allocator::rebind<br>    一个嵌套的 (nested) class template。 class rebind&lt;U&gt; 拥有唯一成员 other，那是一个 typedef，代表 allocator&lt;U&gt;<br>allocator::allocator()<br>	default constructor<br>allocator::allocator(const allocator&amp;)<br>	copy constructor<br>template &lt;class U&gt;allocator::allocator(const allocator&lt;U&gt;&amp;)<br>	泛化的 copy constructor<br>allocator::~allocator()<br>	default deconstructor<br>pointer allocator::address(reference x) const<br>	返回某个对象的地址。算式 a.address(x) 等同于 &amp;x<br>const_pointer allocator::address(const_reference x) const<br>	返回某个 const 对象的地址。算式 a.address(x) 等同于 &amp;x<br>pointer allocator::allocate(size_type n, const void* = 0)<br>	配置空间，足以存储 n 个 T 对象。第二个参数是一个提示。实现上可能会利用它来增进区域性(locality)，或者完全忽略之<br>void allocator::deallocate(pointer p, size_type n)<br>	归还先前配置的空间<br>size_type allocator::max_size() const<br>	返回可成功配置的最大量<br>void allocator::construct(pointer p, const T&amp; x)<br>	等同于 new(const void* p) T(x)<br>void allocator::destory(pointer p)<br>	等同于 p-&gt;~T()<br></code></pre></td></tr></table></figure>
-
-<h3 id="设计一个简单的空间配置器，JJ-allocator"><a href="#设计一个简单的空间配置器，JJ-allocator" class="headerlink" title="设计一个简单的空间配置器，JJ::allocator"></a>设计一个简单的空间配置器，JJ::allocator</h3><p>根据前述的标准接口，我们可以自行完成一个功能简单、接口不怎么齐全的 allocator 如下：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> _JJALLOC_</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> _JJALLOC_</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;new&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;scstddef&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstdlib&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">namespace</span> JJ<br>&#123;<br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;<br>    <span class="hljs-keyword">inline</span> T* _allocate(<span class="hljs-type">ptrdiff_t</span> size, T*) &#123;<br>        <span class="hljs-built_in">set_new_handler</span>(<span class="hljs-number">0</span>);<br>        T* tmp = (T*)(::<span class="hljs-keyword">operator</span> <span class="hljs-built_in">new</span>((<span class="hljs-type">size_t</span>)(size * <span class="hljs-built_in">sizeof</span>(T))));<br>        <span class="hljs-keyword">if</span> (tmp == <span class="hljs-number">0</span>) &#123;<br>            cerr &lt;&lt; <span class="hljs-string">&quot;out of memory&quot;</span> &lt;&lt; endl;<br>            <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> tmp;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+                <h1 id="DataLab-Manipulating-Bits"><a href="#DataLab-Manipulating-Bits" class="headerlink" title="DataLab_Manipulating Bits"></a>DataLab_Manipulating Bits</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>记录 CSAPP 第一个实验遇到的问题和一些思考。</p>
 
                 
               </div>
@@ -331,8 +325,15 @@
     
       <span class="category-chain">
         
-  <a href="/categories/STL%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/" class="category-chain-item">STL源码剖析</a>
+  <a href="/categories/CSAPP/" class="category-chain-item">CSAPP</a>
   
+  
+    <span>></span>
+    
+  <a href="/categories/CSAPP/datalab/" class="category-chain-item">datalab</a>
+  
+  
+
   
 
       </span>
@@ -346,9 +347,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/STL/" class="print-no-link">#STL</a>
+        <a href="/tags/CSAPP/" class="print-no-link">#CSAPP</a>
       
-        <a href="/tags/C-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="print-no-link">#C++基础知识</a>
+        <a href="/tags/%E7%BD%91%E7%BA%A2%E8%AF%BE/" class="print-no-link">#网红课</a>
       
     </div>
   
@@ -360,8 +361,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>STL_allocator</div>
-      <div>https://lumen3ever.top/2023/12/06/STL_allocator/</div>
+      <div>csapp_datalab</div>
+      <div>https://lumen3ever.top/2023/12/20/csapp_datalab/</div>
     </div>
     <div class="license-meta">
       
@@ -373,7 +374,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年12月6日</div>
+          <div>2023年12月20日</div>
         </div>
       
       
@@ -405,18 +406,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/12/13/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title="设计模式">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">设计模式</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/12/06/%E6%83%85%E6%99%AF%E8%AE%BE%E8%AE%A1-%E7%BB%9F%E8%AE%A1%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E6%9C%80%E5%A4%9A%E7%9A%84%E5%89%8D10%E4%B8%AAIP/" title="情景设计_统计海量数据中出现次数最多的前10个IP">
-                        <span class="hidden-mobile">情景设计_统计海量数据中出现次数最多的前10个IP</span>
+                      <a href="/2023/12/13/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title="设计模式">
+                        <span class="hidden-mobile">设计模式</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

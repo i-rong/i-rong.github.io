@@ -253,6 +253,67 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2024/07/28/CRTP-%E5%A5%87%E5%BC%82%E9%80%92%E5%BD%92%E6%A8%A1%E6%9D%BF%E6%A8%A1%E5%BC%8F/" target="_self">
+          CRTP_ 奇异递归模板模式.md
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2024/07/28/CRTP-%E5%A5%87%E5%BC%82%E9%80%92%E5%BD%92%E6%A8%A1%E6%9D%BF%E6%A8%A1%E5%BC%8F/" target="_self">
+        <div>
+          什么是 CRTP什么是 CRTP? CRTP 的全称是 Curiously Recurring Template Pattern，即 “奇异递归模版模式”，简称 CRTP。CRTP 是一种特殊的模板技术和使用方式，是 C++ 模版变成的一种惯用法。CRTP 的特性表现为：  基类是一个模板类 派生类在继承该基类时，将派生类自身作为模版参数传递给基类。  典型代码如下： 12345678910111
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-07-28 15:55" pubdate>
+              2024-07-28
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/C/" class="category-chain-item">C++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C-%E7%9F%A5%E8%AF%86/">#C++ 知识</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2023/12/20/csapp_datalab/" target="_self">
           csapp_datalab
         </a>
@@ -834,75 +895,6 @@
               <a href="/tags/Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#Raft共识算法</a>
             
               <a href="/tags/MIT6-824/">#MIT6.824</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/11/19/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E5%87%BB%E7%A9%BF%E4%B8%8E%E7%A9%BF%E9%80%8F/" target="_self">
-          <img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202311211526588.png" srcset="/img/loading.gif" lazyload alt="缓存雪崩、击穿与穿透">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2023/11/19/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E5%87%BB%E7%A9%BF%E4%B8%8E%E7%A9%BF%E9%80%8F/" target="_self">
-          缓存雪崩、击穿与穿透
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/2023/11/19/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E5%87%BB%E7%A9%BF%E4%B8%8E%E7%A9%BF%E9%80%8F/" target="_self">
-        <div>
-          缓存雪崩为了保证缓存中的数据与数据库中的数据一致，会给缓存中的数据设置数据的过期时间，当缓存数据过期后，用户访问的数据无法从缓存中得到，就需要重新生成缓存，因此就会访问数据库，并将数据库中的数据更新到 Redis 缓存中，这样后续的请求都可以直接命中缓存。  那么，当大量缓存数据在同一时间过期（失效）或者 Redis 故障宕机时，如果此时有大量的用户请求，都无法在 Redis 中处理，于是全部请
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-19 13:54" pubdate>
-              2023-11-19
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Redis/" class="category-chain-item">Redis</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E5%85%AB%E8%82%A1/">#八股</a>
-            
-              <a href="/tags/Redis/">#Redis</a>
             
           </div>
         

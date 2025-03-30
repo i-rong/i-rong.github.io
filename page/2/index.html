@@ -251,6 +251,75 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/11/19/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E5%87%BB%E7%A9%BF%E4%B8%8E%E7%A9%BF%E9%80%8F/" target="_self">
+          <img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202311211526588.png" srcset="/img/loading.gif" lazyload alt="缓存雪崩、击穿与穿透">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2023/11/19/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E5%87%BB%E7%A9%BF%E4%B8%8E%E7%A9%BF%E9%80%8F/" target="_self">
+          缓存雪崩、击穿与穿透
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/2023/11/19/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E3%80%81%E5%87%BB%E7%A9%BF%E4%B8%8E%E7%A9%BF%E9%80%8F/" target="_self">
+        <div>
+          缓存雪崩为了保证缓存中的数据与数据库中的数据一致，会给缓存中的数据设置数据的过期时间，当缓存数据过期后，用户访问的数据无法从缓存中得到，就需要重新生成缓存，因此就会访问数据库，并将数据库中的数据更新到 Redis 缓存中，这样后续的请求都可以直接命中缓存。  那么，当大量缓存数据在同一时间过期（失效）或者 Redis 故障宕机时，如果此时有大量的用户请求，都无法在 Redis 中处理，于是全部请
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-11-19 13:54" pubdate>
+              2023-11-19
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Redis/" class="category-chain-item">Redis</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%85%AB%E8%82%A1/">#八股</a>
+            
+              <a href="/tags/Redis/">#Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2023/11/19/Linux%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86/" target="_self">
           <img src="https://cdn.jsdelivr.net/gh/i-rong/BlogImages@main/img/202311191339006.png" srcset="/img/loading.gif" lazyload alt="Linux写时复制原理">
         </a>
@@ -895,73 +964,6 @@
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#分布式共识算法</a>
             
               <a href="/tags/MIT6-824%E5%AE%98%E6%96%B9%E6%8C%87%E5%AF%BC/">#MIT6.824官方指导</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/10/21/%E8%AF%A6%E8%A7%A3go_Cond/" target="_self">
-          <img src="https://www.nixsolutions.com/uploads/2020/07/Golang.png" srcset="/img/loading.gif" lazyload alt="详解go_Cond">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2023/10/21/%E8%AF%A6%E8%A7%A3go_Cond/" target="_self">
-          详解go_Cond
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/2023/10/21/%E8%AF%A6%E8%A7%A3go_Cond/" target="_self">
-        <div>
-          1.sync.Cond的使用场景 一句话总结：sync.Cond条件变量用来协调想要访问共享资源的那些goroutine，当共享资源的状态发生变化的时候，它可以用来通知被互斥锁阻塞的goroutine  sync.Cond基于互斥锁&#x2F;读写锁，它和互斥锁的区别是什么呢？ 互斥锁sync.Mutex通常用来保护临界区和共享资源，条件变量sync.Cond用来协调想要访问共享资源的gorout
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-10-21 05:42" pubdate>
-              2023-10-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Golang/" class="category-chain-item">Golang</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Golang/">#Golang</a>
             
           </div>
         

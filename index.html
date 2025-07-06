@@ -253,6 +253,79 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2025/07/06/shared_ptr%E6%98%AF%E5%90%A6%E6%98%AF%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84/" target="_self">
+          C++——shared_ptr是否是线程安全的？
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/07/06/shared_ptr%E6%98%AF%E5%90%A6%E6%98%AF%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E7%9A%84/" target="_self">
+        <div>
+          先给结论std::shared_ptr在某些情况下是线程安全的，但并不是在所有情况下都是线程安全的。  引用计数的线程安全：对于同一个 std::shared_ptr对象的多个实例，增加或减少引用计数的操作是线程安全的。这意味着你可以在多个线程中复制或销毁同一个 std::shared_ptr对象，而无需额外的同步。 对象访问的线程安全：std::shared_ptr仅保证引用计数的线程安全，不保
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-07-06 22:17" pubdate>
+              2025-07-06
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">#C++</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2025/05/16/C++%E5%8D%8F%E7%A8%8B(1)/" target="_self">
+          C++协程(1)
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2025/05/16/C++%E5%8D%8F%E7%A8%8B(1)/" target="_self">
+        <div>
+          
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-05-16 23:31" pubdate>
+              2025-05-16
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2024/07/28/CRTP-%E5%A5%87%E5%BC%82%E9%80%92%E5%BD%92%E6%A8%A1%E6%9D%BF%E6%A8%A1%E5%BC%8F/" target="_self">
           CRTP_ 奇异递归模板模式
         </a>
@@ -757,144 +830,6 @@
               <a href="/tags/STL/">#STL</a>
             
               <a href="/tags/C-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">#C++ 基础知识</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/11/30/%E6%89%8B%E5%86%99%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E7%B1%BB-SharedPtr/" target="_self">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/ISO_C%2B%2B_Logo.svg/800px-ISO_C%2B%2B_Logo.svg.png" srcset="/img/loading.gif" lazyload alt="手写实现智能指针类_SharedPtr">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2023/11/30/%E6%89%8B%E5%86%99%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E7%B1%BB-SharedPtr/" target="_self">
-          手写实现智能指针类_SharedPtr
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/2023/11/30/%E6%89%8B%E5%86%99%E5%AE%9E%E7%8E%B0%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88%E7%B1%BB-SharedPtr/" target="_self">
-        <div>
-          123456789101112131415161718192021222324252627282930313233343536373839404142template&lt;typename T&gt;class SharedPtr &#123;private:	size_t* m_count_;	T* m_ptr_;public:	// 构造函数	SharedPtr(): m_ptr_(null
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-30 19:31" pubdate>
-              2023-11-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/C-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" class="category-chain-item">C++基础知识</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">#C++</a>
-            
-              <a href="/tags/%E6%83%85%E6%99%AF%E8%AE%BE%E8%AE%A1%E9%A2%98/">#情景设计题</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/11/21/Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
-          <img src="https://raft.github.io/logo/solo.svg" srcset="/img/loading.gif" lazyload alt="Raft共识算法学习笔记">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2023/11/21/Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
-          Raft共识算法学习笔记
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/2023/11/21/Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_self">
-        <div>
-          概述这一部分会简单介绍 Raft 的一些基本概念。 子问题Raft 将共识算法这个难解决的问题拆分成了多个易解决，相对独立的子问题，这些问题都会在接下来的章节中进行介绍。  Leader election: 选出集群的 leader 来统筹全局。 Log replication: leader 负责从客户端接收请求，并且在集群中扩散同步。 Safety: 各节点间状态机的一致性保证。  在博士论文
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-11-21 15:23" pubdate>
-              2023-11-21
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Raft/" class="category-chain-item">Raft</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MIT6-824/">#MIT6.824</a>
-            
-              <a href="/tags/Raft%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95/">#Raft共识算法</a>
             
           </div>
         
